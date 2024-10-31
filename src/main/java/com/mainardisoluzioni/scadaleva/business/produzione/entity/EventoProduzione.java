@@ -17,12 +17,15 @@
 package com.mainardisoluzioni.scadaleva.business.produzione.entity;
 
 import com.mainardisoluzioni.scadaleva.business.produzione.control.StatoLavorazione;
+import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -33,7 +36,7 @@ import java.time.LocalTime;
  */
 @Entity
 @Table(name = "produzione")
-public class Evento {
+public class EventoProduzione {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -44,8 +47,9 @@ public class Evento {
     @Column(name = "DataOdL")
     private LocalDate dataOrdineDiLavoro;
     
-    @Column(name = "Macchina", length = 6)
-    private String codiceMacchinario;
+    @ManyToOne
+    @JoinColumn(name = "Macchina", referencedColumnName = "codice")
+    private Macchina macchina;
     
     @Column(name = "DataProd")
     private LocalDate dataProduzione;
@@ -59,7 +63,7 @@ public class Evento {
     
     private Integer quantita;
 
-    public Evento() {
+    public EventoProduzione() {
     }
 
     public Long getId() {
@@ -86,12 +90,12 @@ public class Evento {
         this.dataOrdineDiLavoro = dataOrdineDiLavoro;
     }
 
-    public String getCodiceMacchinario() {
-        return codiceMacchinario;
+    public Macchina getMacchina() {
+        return macchina;
     }
 
-    public void setCodiceMacchinario(String codiceMacchinario) {
-        this.codiceMacchinario = codiceMacchinario;
+    public void setMacchina(Macchina macchina) {
+        this.macchina = macchina;
     }
 
     public LocalDate getDataProduzione() {

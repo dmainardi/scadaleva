@@ -16,17 +16,10 @@
  */
 package com.mainardisoluzioni.scadaleva.business.produzione.boundary;
 
-import jakarta.ejb.Stateless;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 /**
  *
  * @author adminavvimpa
  */
-@Stateless
 public class EventoService {
-    @PersistenceContext
-    EntityManager em;
 
 }

@@ -8,10 +8,14 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.subscribe.Mqtt5RetainHandling;
 import com.hivemq.client.mqtt.mqtt5.message.subscribe.suback.Mqtt5SubAck;
+import com.mainardisoluzioni.scadaleva.business.energia.entity.PayloadTelemetryTraceAndFollow;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.ejb.Startup;
 import jakarta.ejb.Singleton;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.bind.JsonbException;
 import java.util.UUID;
 
 /**
@@ -53,7 +57,14 @@ public class MqttService {
     }
     
     private void maina(String payload) {
-        System.out.println("Message: " + payload);
+        try {
+            Jsonb jsonb = JsonbBuilder.create();
+            PayloadTelemetryTraceAndFollow payloadTaF = jsonb.fromJson(payload, PayloadTelemetryTraceAndFollow.class);
+            System.out.println("ts: " + payloadTaF.getTimestamp());
+            System.out.println("consumo: " + payloadTaF.getContenuto().getConsumoWh());
+        } catch (JsonbException e) {
+            System.err.println(e.getLocalizedMessage());
+        }
     }
     
     @PreDestroy

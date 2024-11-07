@@ -1,13 +1,26 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Copyright (C) 2024 adminavvimpa
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.mainardisoluzioni.scadaleva.business.comunicazione.boundary;
+package com.mainardisoluzioni.scadaleva.business.comunicazione.control;
 
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.subscribe.Mqtt5RetainHandling;
 import com.hivemq.client.mqtt.mqtt5.message.subscribe.suback.Mqtt5SubAck;
+import com.mainardisoluzioni.scadaleva.business.comunicazione.boundary.MqttDeviceService;
 import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.MqttDevice;
 import com.mainardisoluzioni.scadaleva.business.energia.boundary.EventoEnergiaService;
 import com.mainardisoluzioni.scadaleva.business.energia.entity.PayloadTelemetryTraceAndFollow;
@@ -31,7 +44,7 @@ import java.util.UUID;
  */
 @Startup
 @Singleton
-public class MqttService {
+public class MqttController {
     private final String BROKER_IP_ADDRESS = "192.168.2.125";
     
     private Mqtt5AsyncClient client;

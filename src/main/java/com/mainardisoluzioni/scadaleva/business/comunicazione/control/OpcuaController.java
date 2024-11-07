@@ -16,19 +16,20 @@
  */
 package com.mainardisoluzioni.scadaleva.business.comunicazione.control;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.ejb.Singleton;
+import jakarta.ejb.Startup;
+
 /**
  *
  * @author adminavvimpa
  */
-public enum CategoriaVariabileProduzione {
-    STATO_MACCHINA(0),
-    CONTAPEZZI(1),
-    RICETTA_NOME(2),
-    RICETTA_CODICE(3);
+@Startup
+@Singleton
+public class OpcuaController {
     
-    private final int value;
-    
-    private CategoriaVariabileProduzione(int value) {
-        this.value = value;
+    @PostConstruct
+    public void init() {
+        
     }
 }

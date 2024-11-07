@@ -16,7 +16,7 @@
  */
 package com.mainardisoluzioni.scadaleva.business.comunicazione.boundary;
 
-import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.MqttDevice;
+import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.OpcuaDevice;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -30,15 +30,15 @@ import java.util.List;
  * @author adminavvimpa
  */
 @Stateless
-public class MqttDeviceService {
+public class OpcuaDeviceService {
     @PersistenceContext
     EntityManager em;
     
-    public List<MqttDevice> list() {
+    public List<OpcuaDevice> list() {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<MqttDevice> query = cb.createQuery(MqttDevice.class);
-        Root<MqttDevice> root = query.from(MqttDevice.class);
-        CriteriaQuery<MqttDevice> select = query.select(root).distinct(true);
+        CriteriaQuery<OpcuaDevice> query = cb.createQuery(OpcuaDevice.class);
+        Root<OpcuaDevice> root = query.from(OpcuaDevice.class);
+        CriteriaQuery<OpcuaDevice> select = query.select(root).distinct(true);
         
         return em.createQuery(select).getResultList();
     }

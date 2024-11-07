@@ -9,6 +9,7 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.subscribe.Mqtt5RetainHandling;
 import com.hivemq.client.mqtt.mqtt5.message.subscribe.suback.Mqtt5SubAck;
 import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.MqttDevice;
+import com.mainardisoluzioni.scadaleva.business.energia.boundary.EventoEnergiaService;
 import com.mainardisoluzioni.scadaleva.business.energia.entity.PayloadTelemetryTraceAndFollow;
 import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
 import jakarta.annotation.PostConstruct;
@@ -32,13 +33,15 @@ import java.util.UUID;
 @Singleton
 public class MqttService {
     private final String BROKER_IP_ADDRESS = "192.168.2.125";
-    private final String TELEMETRY_TOPIC = "v1/devices/#/telemetry";
     
     private Mqtt5AsyncClient client;
     private Map<Mqtt5SubAck, String> mqtt5SubAcks;
     
     @Inject
     MqttDeviceService mqttDeviceService;
+    
+    @Inject
+    EventoEnergiaService eventoEnergiaService;
     
     @PostConstruct
     public void init() {
@@ -80,6 +83,7 @@ public class MqttService {
             System.out.println("macchina: " + macchina.getCodice());
             System.out.println("ts: " + payloadTaF.getTimestamp());
             System.out.println("consumo: " + payloadTaF.getContenuto().getConsumoWh());
+            eventoEnergiaService.createAndSave(macchina, payloadTaF.getTimestamp(), payloadTaF.getContenuto().getConsumoWh());
         } catch (JsonbException e) {
             System.err.println(e.getLocalizedMessage());
         }

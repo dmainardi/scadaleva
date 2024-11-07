@@ -5,8 +5,8 @@
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <properties>
             <!--Uncomment/comment for enabling/disabling database creation and population-->
-            <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
-            <property name="jakarta.persistence.sql-load-script-source" value="sql/insertInitialData.sql"/>
+            <!--<property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <property name="jakarta.persistence.sql-load-script-source" value="sql/insertInitialData.sql"/>-->
             
             <!--Uncomment/comment for enabling/disabling sql logging-->
             <!--<property name="eclipselink.logging.level.sql" value="FINE"/>

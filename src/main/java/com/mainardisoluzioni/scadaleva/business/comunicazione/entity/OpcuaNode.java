@@ -49,7 +49,7 @@ public class OpcuaNode {
     
     @Column(nullable = false)
     @DecimalMin(value = "0", inclusive = false)
-    private @NotNull Integer nodeId;
+    private @NotNull Integer nodeIdentifier;
 
     public OpcuaNode() {
     }
@@ -86,12 +86,12 @@ public class OpcuaNode {
         this.nameSpaceIndex = nameSpaceIndex;
     }
 
-    public Integer getNodeId() {
-        return nodeId;
+    public Integer getNodeIdentifier() {
+        return nodeIdentifier;
     }
 
-    public void setNodeId(Integer nodeId) {
-        this.nodeId = nodeId;
+    public void setNodeIdentifier(Integer nodeIdentifier) {
+        this.nodeIdentifier = nodeIdentifier;
     }
     
 }

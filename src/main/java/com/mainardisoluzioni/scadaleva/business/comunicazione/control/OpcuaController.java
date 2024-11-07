@@ -18,6 +18,7 @@ package com.mainardisoluzioni.scadaleva.business.comunicazione.control;
 
 import com.mainardisoluzioni.scadaleva.business.comunicazione.boundary.OpcuaDeviceService;
 import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.OpcuaDevice;
+import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.OpcuaNode;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.ejb.Singleton;
@@ -98,10 +99,11 @@ public class OpcuaController {
                 System.out.println(String.format("subscription value received: item={%s}, value={%s}", item.getNodeId(), values.get(i).getValue()));
             }
         });
-        List<NodeId> nodiId = new ArrayList<>();
-        nodiId.add(new NodeId(4, 11));
-        nodiId.add(new NodeId(4, 13));
-        List<ManagedDataItem> managedDataItems = subscription.createDataItems(nodiId);
+        List<NodeId> elencoNodeId = new ArrayList<>();
+        for (OpcuaNode opcuaNode : opcuaDevice.getOpcuaNodes())
+            if (opcuaNode.getCategoriaVariabileProduzione() == CategoriaVariabileProduzione.CONTAPEZZI || opcuaNode.getCategoriaVariabileProduzione() == CategoriaVariabileProduzione.RICETTA_CODICE)
+                elencoNodeId.add(new NodeId(opcuaNode.getNameSpaceIndex(), opcuaNode.getNodeIdentifier()));
+        List<ManagedDataItem> managedDataItems = subscription.createDataItems(elencoNodeId);
         for (ManagedDataItem managedDataItem : managedDataItems) {
             if (managedDataItem.getStatusCode().isGood()) {
                 System.out.println(String.format("item created for nodeId={%s}", managedDataItem.getNodeId()));
@@ -111,20 +113,6 @@ public class OpcuaController {
                 System.err.println(String.format("failed to create item for nodeId={%s} (status={%s})", managedDataItem.getNodeId(), managedDataItem.getStatusCode()));
             }
         }
-        
-        /*RandomGenerator randomGenerator = new Random();
-        for (OpcuaNode opcuaNode : opcuaDevice.getOpcuaNodes()) {
-            ReadValueId readValueId = new ReadValueId(new NodeId(opcuaNode.getNameSpaceIndex(), opcuaNode.getNodeId()), AttributeId.Value.uid(), null, null);
-            MonitoringParameters parameters = new MonitoringParameters(uint(randomGenerator.nextInt(1, 1000000000)), 1000.0, null, uint(10), true);
-            MonitoredItemCreateRequest request = new MonitoredItemCreateRequest(readValueId, MonitoringMode.Reporting, parameters);
-            
-            Consumer<DataValue> consumer = new Consumer<DataValue>() {
-                @Override
-                public void accept(DataValue t) {
-                    throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-                }
-            };
-        }*/
     }
     
     @PreDestroy

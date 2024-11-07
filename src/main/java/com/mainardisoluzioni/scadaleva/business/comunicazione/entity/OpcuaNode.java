@@ -25,7 +25,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -46,7 +45,7 @@ public class OpcuaNode {
     private @NotNull CategoriaVariabileProduzione categoriaVariabileProduzione;
     
     @Column(nullable = false)
-    private @NotBlank String nameSpaceIndex;
+    private @NotNull @DecimalMin(value = "0", inclusive = false) Integer nameSpaceIndex;
     
     @Column(nullable = false)
     @DecimalMin(value = "0", inclusive = false)
@@ -79,11 +78,11 @@ public class OpcuaNode {
         this.categoriaVariabileProduzione = categoriaVariabileProduzione;
     }
 
-    public String getNameSpaceIndex() {
+    public Integer getNameSpaceIndex() {
         return nameSpaceIndex;
     }
 
-    public void setNameSpaceIndex(String nameSpaceIndex) {
+    public void setNameSpaceIndex(Integer nameSpaceIndex) {
         this.nameSpaceIndex = nameSpaceIndex;
     }
 

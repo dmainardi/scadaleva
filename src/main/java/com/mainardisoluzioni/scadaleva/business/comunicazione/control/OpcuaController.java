@@ -16,9 +16,32 @@
  */
 package com.mainardisoluzioni.scadaleva.business.comunicazione.control;
 
+import com.mainardisoluzioni.scadaleva.business.comunicazione.boundary.OpcuaDeviceService;
+import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.OpcuaDevice;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
+import jakarta.inject.Inject;
+import jakarta.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
+import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfigBuilder;
+import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedDataItem;
+import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
+import org.eclipse.milo.opcua.stack.client.DiscoveryClient;
+import org.eclipse.milo.opcua.stack.core.UaException;
+import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
+import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
+import static org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned.uint;
+import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
+import org.eclipse.milo.opcua.stack.core.util.EndpointUtil;
 
 /**
  *
@@ -28,8 +51,100 @@ import jakarta.ejb.Startup;
 @Singleton
 public class OpcuaController {
     
+    @Inject
+    OpcuaDeviceService opcuaDeviceService;
+    
+    private Map<OpcUaClient, OpcuaDevice> clients;
+    
+    private List<ManagedDataItem> dataItems;
+    
     @PostConstruct
     public void init() {
+        createAndConnectToClients();
+    }
+    
+    private void createAndConnectToClients() {
+        clients = new HashMap<>();
+        List<OpcuaDevice> opcuaDevices = opcuaDeviceService.list();
+        if (opcuaDevices != null)
+            for (OpcuaDevice opcuaDevice : opcuaDevices) {
+                try {
+                    List<EndpointDescription> endpoints = DiscoveryClient.getEndpoints("opc.tcp://" + opcuaDevice.getIpAddress() +":" + opcuaDevice.getTcpPort()).get();
+                    EndpointDescription configPoint = EndpointUtil.updateUrl(endpoints.get(0), opcuaDevice.getIpAddress(), Integer.parseInt(opcuaDevice.getTcpPort()));
+
+                    OpcUaClientConfigBuilder cfg = new OpcUaClientConfigBuilder();
+                    cfg.setEndpoint(configPoint)
+                            .setApplicationName(LocalizedText.english("scadaleva opc-ua client"))
+                            .setApplicationUri("scadaleva:levaspa:com")
+                            .setRequestTimeout(uint(5000));
+
+                    OpcUaClient client = OpcUaClient.create(cfg.build());
+                    client.connect().get(5, TimeUnit.SECONDS);
+                    listen(opcuaDevice, client);
+                    clients.put(client, opcuaDevice);
+                } catch (InterruptedException | ExecutionException | NumberFormatException | UaException | TimeoutException ex) {
+                    System.err.println("OpcuaController:init - Errore: " + ex.getLocalizedMessage());
+                }
+            }
+    }
+    
+    private void listen(@NotNull OpcuaDevice opcuaDevice, @NotNull OpcUaClient client) throws UaException {
+        dataItems = new ArrayList<>();
+        ManagedSubscription subscription = ManagedSubscription.create(client);
+        subscription.addDataChangeListener((items, values) -> {
+            for (int i = 0; i < items.size(); i++) {
+                ManagedDataItem item = items.get(i);
+                System.out.println("Macchina: " + clients.get(item.getClient()).getMacchina().getCodice());
+                System.out.println(String.format("subscription value received: item={%s}, value={%s}", item.getNodeId(), values.get(i).getValue()));
+            }
+        });
+        List<NodeId> nodiId = new ArrayList<>();
+        nodiId.add(new NodeId(4, 11));
+        nodiId.add(new NodeId(4, 13));
+        List<ManagedDataItem> managedDataItems = subscription.createDataItems(nodiId);
+        for (ManagedDataItem managedDataItem : managedDataItems) {
+            if (managedDataItem.getStatusCode().isGood()) {
+                System.out.println(String.format("item created for nodeId={%s}", managedDataItem.getNodeId()));
+
+                dataItems.add(managedDataItem);
+            } else {
+                System.err.println(String.format("failed to create item for nodeId={%s} (status={%s})", managedDataItem.getNodeId(), managedDataItem.getStatusCode()));
+            }
+        }
         
+        /*RandomGenerator randomGenerator = new Random();
+        for (OpcuaNode opcuaNode : opcuaDevice.getOpcuaNodes()) {
+            ReadValueId readValueId = new ReadValueId(new NodeId(opcuaNode.getNameSpaceIndex(), opcuaNode.getNodeId()), AttributeId.Value.uid(), null, null);
+            MonitoringParameters parameters = new MonitoringParameters(uint(randomGenerator.nextInt(1, 1000000000)), 1000.0, null, uint(10), true);
+            MonitoredItemCreateRequest request = new MonitoredItemCreateRequest(readValueId, MonitoringMode.Reporting, parameters);
+            
+            Consumer<DataValue> consumer = new Consumer<DataValue>() {
+                @Override
+                public void accept(DataValue t) {
+                    throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+                }
+            };
+        }*/
+    }
+    
+    @PreDestroy
+    public void destroy() {
+        if (dataItems != null)
+            for (ManagedDataItem dataItem : dataItems) {
+                try {
+                    dataItem.delete();
+                } catch (UaException ex) {
+                    System.err.println("OpcuaController:destroy - Errore: " + ex.getLocalizedMessage());
+                }
+            }
+        if (clients != null)
+            for (OpcUaClient client : clients.keySet()) {
+                if (client != null)
+                    try {
+                        client.disconnect().get(5, TimeUnit.SECONDS);
+                    } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+                        System.err.println("OpcuaController:destroy - Errore: " + ex.getLocalizedMessage());
+                    }
+            }
     }
 }

@@ -25,6 +25,7 @@ import com.mainardisoluzioni.scadaleva.business.produzione.entity.ParametroMacch
 import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import jakarta.ejb.Schedule;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 import jakarta.inject.Inject;
@@ -34,6 +35,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -77,33 +79,37 @@ public class OpcuaController {
     
     @PostConstruct
     public void init() {
-        createAndConnectToClients();
+        createAndConnectToClientsFromDatabase();
     }
     
-    private void createAndConnectToClients() {
+    private void createAndConnectToClientsFromDatabase() {
         clients = new HashMap<>();
         lastCycleCounters = new HashMap<>();
         List<OpcuaDevice> opcuaDevices = opcuaDeviceService.list();
         if (opcuaDevices != null)
-            for (OpcuaDevice opcuaDevice : opcuaDevices) {
-                try {
-                    List<EndpointDescription> endpoints = DiscoveryClient.getEndpoints("opc.tcp://" + opcuaDevice.getIpAddress() +":" + opcuaDevice.getTcpPort()).get();
-                    EndpointDescription configPoint = EndpointUtil.updateUrl(endpoints.get(0), opcuaDevice.getIpAddress(), Integer.parseInt(opcuaDevice.getTcpPort()));
+            createAndConnectToClients(opcuaDevices);
+    }
+    
+    private void createAndConnectToClients(@NotNull List<OpcuaDevice> opcuaDevices) {
+        for (OpcuaDevice opcuaDevice : opcuaDevices) {
+            try {
+                List<EndpointDescription> endpoints = DiscoveryClient.getEndpoints("opc.tcp://" + opcuaDevice.getIpAddress() +":" + opcuaDevice.getTcpPort()).get();
+                EndpointDescription configPoint = EndpointUtil.updateUrl(endpoints.get(0), opcuaDevice.getIpAddress(), Integer.parseInt(opcuaDevice.getTcpPort()));
 
-                    OpcUaClientConfigBuilder cfg = new OpcUaClientConfigBuilder();
-                    cfg.setEndpoint(configPoint)
-                            .setApplicationName(LocalizedText.english("scadaleva opc-ua client"))
-                            .setApplicationUri("scadaleva:levaspa:com")
-                            .setRequestTimeout(Unsigned.uint(5000));
+                OpcUaClientConfigBuilder cfg = new OpcUaClientConfigBuilder();
+                cfg.setEndpoint(configPoint)
+                        .setApplicationName(LocalizedText.english("scadaleva opc-ua client"))
+                        .setApplicationUri("scadaleva:levaspa:com")
+                        .setRequestTimeout(Unsigned.uint(5000));
 
-                    OpcUaClient client = OpcUaClient.create(cfg.build());
-                    client.connect().get(5, TimeUnit.SECONDS);
-                    listen(opcuaDevice, client);
-                    clients.put(client, opcuaDevice);
-                } catch (InterruptedException | ExecutionException | NumberFormatException | UaException | TimeoutException ex) {
-                    System.err.println("OpcuaController:init - Errore: " + ex.getLocalizedMessage());
-                }
+                OpcUaClient client = OpcUaClient.create(cfg.build());
+                client.connect().get(5, TimeUnit.SECONDS);
+                listen(opcuaDevice, client);
+                clients.put(client, opcuaDevice);
+            } catch (InterruptedException | ExecutionException | NumberFormatException | UaException | TimeoutException ex) {
+                System.err.println("OpcuaController:init - Errore: " + ex.getLocalizedMessage());
             }
+        }
     }
     
     private void listen(@NotNull OpcuaDevice opcuaDevice, @NotNull OpcUaClient client) throws UaException {
@@ -210,6 +216,24 @@ public class OpcuaController {
             dataItems.add(managedDataItem);
         } else {
             System.err.println(String.format("failed to create item for nodeId={%s} (status={%s})", managedDataItem.getNodeId(), managedDataItem.getStatusCode()));
+        }
+    }
+    
+    @Schedule(minute = "*/1", hour = "*", persistent = false)
+    protected void checkOpcuaDevicesLiveness() {
+        System.out.println("Adesso provo a vedere se la macchina precedentemente spenta si è accesa");
+        
+        List<OpcuaDevice> opcuaDevices = opcuaDeviceService.list();
+        if (opcuaDevices != null) {
+            /*for (Iterator<OpcuaDevice> iterator = opcuaDevices.iterator(); iterator.hasNext();) {
+                OpcuaDevice opcuaDevice = iterator.next();
+                for (OpcuaDevice opcuaDeviceConnected : clients.values()) {
+                    if (opcuaDeviceConnected.getId().equals(opcuaDevice.getId()))
+                       iterator.remove();
+                }
+            }*/
+            opcuaDevices.removeIf(device -> clients.values().stream().filter(d -> d.getId().equals(device.getId())).findAny().isPresent());
+            createAndConnectToClients(opcuaDevices);
         }
     }
     

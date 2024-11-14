@@ -136,13 +136,16 @@ public class OpcuaController {
                         
                         for (OpcuaNode opcuaNodeTemp : opcuaDeviceTemp.getOpcuaNodes()) {
                             try {
-                                if (opcuaNodeTemp.getCategoriaVariabileProduzione() != CategoriaVariabileProduzione.CONTAPEZZI)
-                                    eventoProduzione.addParametroMacchinaProduzione(
-                                            new ParametroMacchinaProduzione(
-                                                    opcuaNodeTemp,
-                                                    String.valueOf(client.getAddressSpace().getVariableNode(new NodeId(opcuaNodeTemp.getNameSpaceIndex(), opcuaNodeTemp.getNodeIdentifier())).readValue().getValue().getValue())
-                                            )
-                                    );
+                                if (opcuaNodeTemp.getCategoriaVariabileProduzione() != CategoriaVariabileProduzione.CONTAPEZZI) {
+                                    String valore = String.valueOf(client.getAddressSpace().getVariableNode(new NodeId(opcuaNodeTemp.getNameSpaceIndex(), opcuaNodeTemp.getNodeIdentifier())).readValue().getValue().getValue());
+                                    if (!valore.isBlank())
+                                        eventoProduzione.addParametroMacchinaProduzione(
+                                                new ParametroMacchinaProduzione(
+                                                        opcuaNodeTemp,
+                                                        valore
+                                                )
+                                        );
+                                }
                                 else
                                     eventoProduzione.addParametroMacchinaProduzione(
                                             new ParametroMacchinaProduzione(

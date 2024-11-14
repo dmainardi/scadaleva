@@ -14,12 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.mainardisoluzioni.scadaleva.business.produzione.boundary;
+package com.mainardisoluzioni.scadaleva.business.produzione.entity;
+
+import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
+import jakarta.persistence.metamodel.SingularAttribute;
+import jakarta.persistence.metamodel.StaticMetamodel;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 /**
  *
  * @author adminavvimpa
  */
-public class EventoService {
-
+@StaticMetamodel(EventoProduzione.class)
+public class EventoProduzione_ {
+    public static volatile SingularAttribute<EventoProduzione, Macchina> macchina;
+    public static volatile SingularAttribute<EventoProduzione, LocalDate> dataProduzione;
+    public static volatile SingularAttribute<EventoProduzione, LocalTime> oraProduzione;
+    public static volatile SingularAttribute<EventoProduzione, Integer> quantita;
 }

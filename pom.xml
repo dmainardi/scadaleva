@@ -46,6 +46,12 @@
             <version>${jakartaee-api.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.milo</groupId>
+            <artifactId>stack-client</artifactId>
+            <version>0.6.14</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

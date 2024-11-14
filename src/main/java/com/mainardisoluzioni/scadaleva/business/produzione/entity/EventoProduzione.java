@@ -18,6 +18,7 @@ package com.mainardisoluzioni.scadaleva.business.produzione.entity;
 
 import com.mainardisoluzioni.scadaleva.business.produzione.control.StatoLavorazione;
 import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -26,9 +27,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -62,6 +67,10 @@ public class EventoProduzione {
     private StatoLavorazione statoLavorazione;
     
     private Integer quantita;
+    
+    @OrderColumn
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "eventoProduzione", orphanRemoval = true)
+    private List<ParametroMacchinaProduzione> parametriMacchinaProduzione = new ArrayList<>();
 
     public EventoProduzione() {
     }
@@ -128,6 +137,24 @@ public class EventoProduzione {
 
     public void setQuantita(Integer quantita) {
         this.quantita = quantita;
+    }
+    
+    public void addParametroMacchinaProduzione(ParametroMacchinaProduzione parametroMacchinaProduzione) {
+        if (!parametriMacchinaProduzione.contains(parametroMacchinaProduzione)) {
+            parametriMacchinaProduzione.add(parametroMacchinaProduzione);
+            parametroMacchinaProduzione.setEventoProduzione(this);
+        }
+    }
+    
+    public void removeParametroMacchinaProduzione(ParametroMacchinaProduzione parametroMacchinaProduzione) {
+        if (parametriMacchinaProduzione.contains(parametroMacchinaProduzione)) {
+            parametriMacchinaProduzione.remove(parametroMacchinaProduzione);
+            parametroMacchinaProduzione.setEventoProduzione(null);
+        }
+    }
+    
+    public List<ParametroMacchinaProduzione> getParametriMacchinaProduzione() {
+        return parametriMacchinaProduzione;
     }
     
 }

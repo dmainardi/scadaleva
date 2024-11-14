@@ -29,6 +29,7 @@ import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotNull;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -41,6 +42,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfigBuilder;
+import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaSubscription;
+import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaSubscriptionManager;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedDataItem;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
 import org.eclipse.milo.opcua.stack.client.DiscoveryClient;
@@ -48,7 +51,8 @@ import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
-import static org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned.uint;
+import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
+import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned;
 import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
 import org.eclipse.milo.opcua.stack.core.util.EndpointUtil;
 
@@ -90,7 +94,7 @@ public class OpcuaController {
                     cfg.setEndpoint(configPoint)
                             .setApplicationName(LocalizedText.english("scadaleva opc-ua client"))
                             .setApplicationUri("scadaleva:levaspa:com")
-                            .setRequestTimeout(uint(5000));
+                            .setRequestTimeout(Unsigned.uint(5000));
 
                     OpcUaClient client = OpcUaClient.create(cfg.build());
                     client.connect().get(5, TimeUnit.SECONDS);
@@ -124,8 +128,8 @@ public class OpcuaController {
                         Integer cycleCounter = Integer.valueOf(cycleCounterStr);
                         EventoProduzione eventoProduzione = new EventoProduzione();
                         eventoProduzione.setMacchina(opcuaDeviceTemp.getMacchina());
-                        eventoProduzione.setDataProduzione(LocalDate.now());
-                        eventoProduzione.setOraProduzione(LocalTime.now());
+                        eventoProduzione.setDataProduzione(LocalDate.now(Clock.systemUTC()));
+                        eventoProduzione.setOraProduzione(LocalTime.now(Clock.systemUTC()));
                         eventoProduzione.setQuantita(
                                 cycleCounter - lastCycleCounters.getOrDefault(macchina, 0)
                         );
@@ -172,6 +176,19 @@ public class OpcuaController {
                 } else {
                     System.err.println(String.format("failed to create item for nodeId={%s} (status={%s})", managedDataItem.getNodeId(), managedDataItem.getStatusCode()));
                 }
+                client.getSubscriptionManager().addSubscriptionListener(
+                        new UaSubscriptionManager.SubscriptionListener() {
+                            @Override
+                            public void onSubscriptionTransferFailed(UaSubscription subscription, StatusCode statusCode) {
+                                System.err.println("OpcuaController:onSubscriptionTransferFailed - Errore: " + 
+                                        System.lineSeparator() + 
+                                        subscription.getMonitoredItems() + 
+                                        System.lineSeparator() + 
+                                        statusCode);
+                            }
+
+                        }
+                );
             } catch (NumberFormatException e) {
                 System.err.println("OpcuaController:listen - Errore: " + e.getLocalizedMessage());
             }

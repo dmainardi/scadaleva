@@ -116,82 +116,94 @@ public class OpcuaController {
                         Integer.valueOf(String.valueOf(client.getAddressSpace().getVariableNode(new NodeId(opcuaNode.getNameSpaceIndex(), opcuaNode.getNodeIdentifier())).readValue().getValue().getValue()))
                 );
                 dataItems = new ArrayList<>();
-                ManagedSubscription subscription = ManagedSubscription.create(client);
-                subscription.addDataChangeListener((List<ManagedDataItem> items, List<DataValue> values) -> {
-                    for (int i = 0; i < items.size(); i++) {
-                        ManagedDataItem item = items.get(i);
-                        DataValue value = values.get(i);
-                        OpcuaDevice opcuaDeviceTemp = clients.get(item.getClient());
-                        Macchina macchina = opcuaDeviceTemp.getMacchina();
-                        
-                        String cycleCounterStr = String.valueOf(value.getValue().getValue());
-                        Integer cycleCounter = Integer.valueOf(cycleCounterStr);
-                        EventoProduzione eventoProduzione = new EventoProduzione();
-                        eventoProduzione.setMacchina(opcuaDeviceTemp.getMacchina());
-                        eventoProduzione.setDataProduzione(LocalDate.now(Clock.systemUTC()));
-                        eventoProduzione.setOraProduzione(LocalTime.now(Clock.systemUTC()));
-                        eventoProduzione.setQuantita(
-                                cycleCounter - lastCycleCounters.getOrDefault(macchina, 0)
-                        );
-                        lastCycleCounters.put(
-                                macchina,
-                                cycleCounter
-                        );
-                        
-                        for (OpcuaNode opcuaNodeTemp : opcuaDeviceTemp.getOpcuaNodes()) {
-                            try {
-                                if (opcuaNodeTemp.getCategoriaVariabileProduzione() != CategoriaVariabileProduzione.CONTAPEZZI) {
-                                    String valore = String.valueOf(client.getAddressSpace().getVariableNode(new NodeId(opcuaNodeTemp.getNameSpaceIndex(), opcuaNodeTemp.getNodeIdentifier())).readValue().getValue().getValue());
-                                    if (!valore.isBlank())
-                                        eventoProduzione.addParametroMacchinaProduzione(
-                                                new ParametroMacchinaProduzione(
-                                                        opcuaNodeTemp,
-                                                        valore
-                                                )
-                                        );
-                                }
-                                else
-                                    eventoProduzione.addParametroMacchinaProduzione(
-                                            new ParametroMacchinaProduzione(
-                                                    opcuaNodeTemp,
-                                                    cycleCounterStr
-                                            )
-                                    );
-                            } catch (UaException e) {
-                            }
-                        }
-                        
-                        eventoProduzioneService.save(eventoProduzione);
-
-                        //System.out.println("Macchina: " + clients.get(item.getClient()).getMacchina().getCodice());
-                        //System.out.println(String.format("subscription value received: item={%s}, value={%s}", item.getNodeId(), value.getValue()));
-                    }
-                });
-
-                ManagedDataItem managedDataItem = subscription.createDataItem(new NodeId(opcuaNode.getNameSpaceIndex(), opcuaNode.getNodeIdentifier()));
-                if (managedDataItem.getStatusCode().isGood()) {
-                    System.out.println(String.format("item created for nodeId={%s}", managedDataItem.getNodeId()));
-
-                    dataItems.add(managedDataItem);
-                } else {
-                    System.err.println(String.format("failed to create item for nodeId={%s} (status={%s})", managedDataItem.getNodeId(), managedDataItem.getStatusCode()));
-                }
                 client.getSubscriptionManager().addSubscriptionListener(
                         new UaSubscriptionManager.SubscriptionListener() {
                             @Override
                             public void onSubscriptionTransferFailed(UaSubscription subscription, StatusCode statusCode) {
-                                System.err.println("OpcuaController:onSubscriptionTransferFailed - Errore: " + 
-                                        System.lineSeparator() + 
-                                        subscription.getMonitoredItems() + 
-                                        System.lineSeparator() + 
-                                        statusCode);
+                                System.err.println("OpcuaController:onSubscriptionTransferFailed - Errore: " + statusCode);
+                                try {
+                                    createSubscription(client, opcuaNode);
+                                } catch (UaException e) {
+                                    System.err.println("OpcuaController:onSubscriptionTransferFailed - Errore: " + e);
+                                }
                             }
 
                         }
                 );
+                createSubscription(client, opcuaNode);
             } catch (NumberFormatException e) {
                 System.err.println("OpcuaController:listen - Errore: " + e.getLocalizedMessage());
             }
+        }
+    }
+    
+    /**
+     * Crea la sottoscrizione in modo che possa essere richiamata in caso di riconnessione.
+     * Vedi https://gist.github.com/kevinherron/f2dfc6aaf62360de35dd595fc5930654 ed i commenti di https://stackoverflow.com/a/61774785
+     * @param client
+     * @param opcuaNode
+     * @throws UaException 
+     */
+    private void createSubscription(@NotNull OpcUaClient client, @NotNull OpcuaNode opcuaNode) throws UaException {
+        ManagedSubscription subscription = ManagedSubscription.create(client);
+        subscription.addDataChangeListener((List<ManagedDataItem> items, List<DataValue> values) -> {
+            for (int i = 0; i < items.size(); i++) {
+                ManagedDataItem item = items.get(i);
+                DataValue value = values.get(i);
+                OpcuaDevice opcuaDeviceTemp = clients.get(item.getClient());
+                Macchina macchina = opcuaDeviceTemp.getMacchina();
+
+                String cycleCounterStr = String.valueOf(value.getValue().getValue());
+                Integer cycleCounter = Integer.valueOf(cycleCounterStr);
+                EventoProduzione eventoProduzione = new EventoProduzione();
+                eventoProduzione.setMacchina(opcuaDeviceTemp.getMacchina());
+                eventoProduzione.setDataProduzione(LocalDate.now(Clock.systemUTC()));
+                eventoProduzione.setOraProduzione(LocalTime.now(Clock.systemUTC()));
+                eventoProduzione.setQuantita(
+                        cycleCounter - lastCycleCounters.getOrDefault(macchina, 0)
+                );
+                lastCycleCounters.put(
+                        macchina,
+                        cycleCounter
+                );
+
+                for (OpcuaNode opcuaNodeTemp : opcuaDeviceTemp.getOpcuaNodes()) {
+                    try {
+                        if (opcuaNodeTemp.getCategoriaVariabileProduzione() != CategoriaVariabileProduzione.CONTAPEZZI) {
+                            String valore = String.valueOf(client.getAddressSpace().getVariableNode(new NodeId(opcuaNodeTemp.getNameSpaceIndex(), opcuaNodeTemp.getNodeIdentifier())).readValue().getValue().getValue());
+                            if (!valore.isBlank())
+                                eventoProduzione.addParametroMacchinaProduzione(
+                                        new ParametroMacchinaProduzione(
+                                                opcuaNodeTemp,
+                                                valore
+                                        )
+                                );
+                        }
+                        else
+                            eventoProduzione.addParametroMacchinaProduzione(
+                                    new ParametroMacchinaProduzione(
+                                            opcuaNodeTemp,
+                                            cycleCounterStr
+                                    )
+                            );
+                    } catch (UaException e) {
+                    }
+                }
+
+                eventoProduzioneService.save(eventoProduzione);
+
+                //System.out.println("Macchina: " + clients.get(item.getClient()).getMacchina().getCodice());
+                //System.out.println(String.format("subscription value received: item={%s}, value={%s}", item.getNodeId(), value.getValue()));
+            }
+        });
+
+        ManagedDataItem managedDataItem = subscription.createDataItem(new NodeId(opcuaNode.getNameSpaceIndex(), opcuaNode.getNodeIdentifier()));
+        if (managedDataItem.getStatusCode().isGood()) {
+            System.out.println(String.format("item created for nodeId={%s}", managedDataItem.getNodeId()));
+
+            dataItems.add(managedDataItem);
+        } else {
+            System.err.println(String.format("failed to create item for nodeId={%s} (status={%s})", managedDataItem.getNodeId(), managedDataItem.getStatusCode()));
         }
     }
     

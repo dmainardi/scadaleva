@@ -219,7 +219,7 @@ public class OpcuaController {
         }
     }
     
-    @Schedule(minute = "*/1", hour = "*", persistent = false)
+    @Schedule(minute = "*/5", hour = "*", persistent = false)
     protected void checkOpcuaDevicesLiveness() {
         System.out.println("Adesso provo a vedere se la macchina precedentemente spenta si è accesa");
         

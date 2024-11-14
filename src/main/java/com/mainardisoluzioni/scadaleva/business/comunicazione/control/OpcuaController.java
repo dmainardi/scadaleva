@@ -154,17 +154,23 @@ public class OpcuaController {
                 Macchina macchina = opcuaDeviceTemp.getMacchina();
 
                 String cycleCounterStr = String.valueOf(value.getValue().getValue());
-                Integer cycleCounter = Integer.valueOf(cycleCounterStr);
+                Integer currentCycleCounter = Integer.valueOf(cycleCounterStr);
                 EventoProduzione eventoProduzione = new EventoProduzione();
                 eventoProduzione.setMacchina(opcuaDeviceTemp.getMacchina());
                 eventoProduzione.setDataProduzione(LocalDate.now(Clock.systemUTC()));
                 eventoProduzione.setOraProduzione(LocalTime.now(Clock.systemUTC()));
+                Integer previousCycleCounter = lastCycleCounters.getOrDefault(macchina, 0);
+                Integer quantitaProdotta;
+                if (currentCycleCounter.compareTo(previousCycleCounter) < 0)
+                    quantitaProdotta = currentCycleCounter;
+                else
+                    quantitaProdotta = currentCycleCounter - previousCycleCounter;
                 eventoProduzione.setQuantita(
-                        cycleCounter - lastCycleCounters.getOrDefault(macchina, 0)
+                        quantitaProdotta
                 );
                 lastCycleCounters.put(
                         macchina,
-                        cycleCounter
+                        currentCycleCounter
                 );
 
                 for (OpcuaNode opcuaNodeTemp : opcuaDeviceTemp.getOpcuaNodes()) {

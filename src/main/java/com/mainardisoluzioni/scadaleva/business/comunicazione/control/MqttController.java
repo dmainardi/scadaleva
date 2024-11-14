@@ -42,7 +42,7 @@ import java.util.UUID;
  *
  * @author adminavvimpa
  */
-@Startup
+//@Startup
 @Singleton
 public class MqttController {
     private final String BROKER_IP_ADDRESS = "192.168.2.125";

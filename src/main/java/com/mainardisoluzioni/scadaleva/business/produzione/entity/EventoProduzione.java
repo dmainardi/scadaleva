@@ -21,6 +21,7 @@ import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -62,7 +63,7 @@ public class EventoProduzione {
     @Column(name = "OraProd")
     private LocalTime oraProduzione;
     
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @Column(name = "StatoLav")
     private StatoLavorazione statoLavorazione;
     

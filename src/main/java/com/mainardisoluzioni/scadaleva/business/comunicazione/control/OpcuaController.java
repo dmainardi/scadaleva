@@ -35,7 +35,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -119,7 +118,7 @@ public class OpcuaController {
             try {
                 lastCycleCounters.put(
                         opcuaDevice.getMacchina(),
-                        Integer.valueOf(String.valueOf(client.getAddressSpace().getVariableNode(new NodeId(opcuaNode.getNameSpaceIndex(), opcuaNode.getNodeIdentifier())).readValue().getValue().getValue()))
+                        Integer.valueOf(String.valueOf(client.getAddressSpace().getVariableNode(createNodeId(opcuaNode)).readValue().getValue().getValue()))
                 );
                 dataItems = new ArrayList<>();
                 client.getSubscriptionManager().addSubscriptionListener(
@@ -182,7 +181,7 @@ public class OpcuaController {
                 for (OpcuaNode opcuaNodeTemp : opcuaDeviceTemp.getOpcuaNodes()) {
                     try {
                         if (opcuaNodeTemp.getCategoriaVariabileProduzione() != CategoriaVariabileProduzione.CONTAPEZZI) {
-                            String valore = String.valueOf(client.getAddressSpace().getVariableNode(new NodeId(opcuaNodeTemp.getNameSpaceIndex(), opcuaNodeTemp.getNodeIdentifier())).readValue().getValue().getValue());
+                            String valore = String.valueOf(client.getAddressSpace().getVariableNode(createNodeId(opcuaNodeTemp)).readValue().getValue().getValue());
                             if (!valore.isBlank())
                                 eventoProduzione.addParametroMacchinaProduzione(
                                         new ParametroMacchinaProduzione(
@@ -209,7 +208,7 @@ public class OpcuaController {
             }
         });
 
-        ManagedDataItem managedDataItem = subscription.createDataItem(new NodeId(opcuaNode.getNameSpaceIndex(), opcuaNode.getNodeIdentifier()));
+        ManagedDataItem managedDataItem = subscription.createDataItem(createNodeId(opcuaNode));
         if (managedDataItem.getStatusCode().isGood()) {
             System.out.println(String.format("item created for nodeId={%s}", managedDataItem.getNodeId()));
 
@@ -256,5 +255,20 @@ public class OpcuaController {
                         System.err.println("OpcuaController:destroy - Errore: " + ex.getLocalizedMessage());
                     }
             }
+    }
+    
+    private NodeId createNodeId(@NotNull OpcuaNode opcuaNode) {
+        Integer nodeIdentifierInt;
+        
+        try {
+            nodeIdentifierInt = Integer.valueOf(opcuaNode.getNodeIdentifier());
+        } catch (NumberFormatException e) {
+            nodeIdentifierInt = null;
+        }
+        
+        if (nodeIdentifierInt != null)
+            return new NodeId(opcuaNode.getNameSpaceIndex(), nodeIdentifierInt);
+        else
+            return new NodeId(opcuaNode.getNameSpaceIndex(), opcuaNode.getNodeIdentifier());
     }
 }

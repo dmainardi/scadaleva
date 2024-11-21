@@ -1,3 +1,4 @@
 target/
 .mvn/wrapper/maven-wrapper.jar
 /src/main/resources/sql/insertInitialDataProd.sql
+/src/main/resources/operations/dbReadOnlyUserPassword

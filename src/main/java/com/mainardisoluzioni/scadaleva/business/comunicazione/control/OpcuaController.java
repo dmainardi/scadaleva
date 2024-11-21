@@ -31,8 +31,7 @@ import jakarta.ejb.Startup;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotNull;
 import java.time.Clock;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -162,8 +161,7 @@ public class OpcuaController {
                 Integer currentCycleCounter = Integer.valueOf(cycleCounterStr);
                 EventoProduzione eventoProduzione = new EventoProduzione();
                 eventoProduzione.setMacchina(opcuaDeviceTemp.getMacchina());
-                eventoProduzione.setDataProduzione(LocalDate.now(Clock.systemUTC()));
-                eventoProduzione.setOraProduzione(LocalTime.now(Clock.systemUTC()));
+                eventoProduzione.setTimestampProduzione(LocalDateTime.now(Clock.systemUTC()));
                 Integer previousCycleCounter = lastCycleCounters.getOrDefault(macchina, 0);
                 Integer quantitaProdotta;
                 if (currentCycleCounter.compareTo(previousCycleCounter) < 0)

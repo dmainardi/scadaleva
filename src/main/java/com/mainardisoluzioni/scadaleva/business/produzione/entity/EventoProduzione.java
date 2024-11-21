@@ -30,9 +30,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderColumn;
-import jakarta.persistence.Table;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,33 +40,27 @@ import java.util.List;
  * @author adminavvimpa
  */
 @Entity
-@Table(name = "produzione")
 public class EventoProduzione {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "NumeroOdL", length = 15)
+    @Column(length = 15)
     private String numeroOrdineDiLavoro;
     
-    @Column(name = "DataOdL")
-    private LocalDate dataOrdineDiLavoro;
-    
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "Macchina", referencedColumnName = "codice")
-    private Macchina macchina;
+    private @NotNull Macchina macchina;
     
-    @Column(name = "DataProd")
-    private LocalDate dataProduzione;
-    
-    @Column(name = "OraProd")
-    private LocalTime oraProduzione;
+    @Column(nullable = false, columnDefinition = "timestamp")
+    private @NotNull LocalDateTime timestampProduzione;
     
     @Enumerated(EnumType.STRING)
     @Column(name = "StatoLav")
     private StatoLavorazione statoLavorazione;
     
-    private Integer quantita;
+    @Column(nullable = false)
+    private @NotNull Integer quantita;
     
     @OrderColumn
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "eventoProduzione", orphanRemoval = true)
@@ -92,14 +85,6 @@ public class EventoProduzione {
         this.numeroOrdineDiLavoro = numeroOrdineDiLavoro;
     }
 
-    public LocalDate getDataOrdineDiLavoro() {
-        return dataOrdineDiLavoro;
-    }
-
-    public void setDataOrdineDiLavoro(LocalDate dataOrdineDiLavoro) {
-        this.dataOrdineDiLavoro = dataOrdineDiLavoro;
-    }
-
     public Macchina getMacchina() {
         return macchina;
     }
@@ -108,20 +93,12 @@ public class EventoProduzione {
         this.macchina = macchina;
     }
 
-    public LocalDate getDataProduzione() {
-        return dataProduzione;
+    public LocalDateTime getTimestampProduzione() {
+        return timestampProduzione;
     }
 
-    public void setDataProduzione(LocalDate dataProduzione) {
-        this.dataProduzione = dataProduzione;
-    }
-
-    public LocalTime getOraProduzione() {
-        return oraProduzione;
-    }
-
-    public void setOraProduzione(LocalTime oraProduzione) {
-        this.oraProduzione = oraProduzione;
+    public void setTimestampProduzione(LocalDateTime timestampProduzione) {
+        this.timestampProduzione = timestampProduzione;
     }
 
     public StatoLavorazione getStatoLavorazione() {

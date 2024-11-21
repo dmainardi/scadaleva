@@ -21,10 +21,15 @@ package com.mainardisoluzioni.scadaleva.business.comunicazione.control;
  * @author adminavvimpa
  */
 public enum CategoriaVariabileProduzione {
-    STATO_MACCHINA(0),
-    CONTAPEZZI(1),
-    RICETTA_NOME(2),
-    RICETTA_CODICE(3);
+    CONTAPEZZI(0),
+    RICETTA_RICHIESTA_CODICE(1),
+    RICETTA_IMPOSTATA_CODICE(2),
+    CODICE_ORDINE_DI_PRODUZIONE(3),
+    DATA_ORDINE_DI_PRODUZIONE(4),
+    CODICE_ARTICOLO(5),
+    LOTTO(6),
+    QUANTITA_RICHIESTA(7),
+    QUANTITA_PRODOTTA_CORRETTAMENTE(8);
     
     private final int value;
     

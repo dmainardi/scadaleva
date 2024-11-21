@@ -7,6 +7,12 @@ readonly DB_NAME="${APP_NAME}"
 readonly DB_USER_NAME="${APP_NAME}"
 readonly DB_USER_PASSWORD=123Stella!!!
 
+readonly IP_READ_ONLY_ADDRESS=192.168.1.200
+readonly TCP_READ_ONLY_PORT=3306
+readonly DB_READ_ONLY_NAME=axis_files_lev
+readonly DB_READ_ONLY_USER_NAME=comandu
+readonly DB_READ_ONLY_USER_PASSWORD_ALIAS_NAME=scadaleva-db-readyonly-user-alias
+
 mkdir $HOME/"${APP_NAME}"
 mkdir $HOME/"${APP_NAME}"/documents
 \
@@ -29,4 +35,19 @@ portNumber=5432:\
 url=jdbc\\:postgresql\\://"${IP_ADDRESS}"\\:5432/"${DB_NAME}" \
 postgres_"${APP_NAME}"_pool
 ./asadmin create-jdbc-resource --connectionpoolid postgres_"${APP_NAME}"_pool jdbc/postgres_"${APP_NAME}"
+
+# Crea l'alias password per il collegamento col databse in sola lettura della BiElle
+./asadmin --passwordfile "${IDE_WORKSPACE}"/"${APP_NAME}"/src/main/resources/operations/dbReadOnlyUserPassword create-password-alias ${DB_READ_ONLY_USER_PASSWORD_ALIAS_NAME}
+./asadmin create-jdbc-connection-pool \
+--datasourceclassname com.mysql.cj.jdbc.MysqlDataSource \
+--restype javax.sql.DataSource \
+--property \
+user="${DB_READ_ONLY_USER_NAME}":\
+password=\$\{ALIAS=${DB_READ_ONLY_USER_PASSWORD_ALIAS_NAME}\}:\
+DatabaseName="${DB_READ_ONLY_NAME}":\
+ServerName="${IP_READ_ONLY_ADDRESS}":\
+portNumber="${TCP_READ_ONLY_PORT}" \
+mysql_${APP_NAME}_pool
+./asadmin create-jdbc-resource --connectionpoolid mysql_"${APP_NAME}"_pool jdbc/mysql_"${APP_NAME}"
+
 ./asadmin stop-domain

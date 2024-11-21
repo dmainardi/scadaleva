@@ -3,7 +3,13 @@
     <persistence-unit name="scadaleva_PU" transaction-type="JTA">
         <jta-data-source>jdbc/postgres_scadaleva</jta-data-source>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
-        
+        <class>com.mainardisoluzioni.scadaleva.business.comunicazione.entity.MqttDevice</class>
+        <class>com.mainardisoluzioni.scadaleva.business.comunicazione.entity.OpcuaDevice</class>
+        <class>com.mainardisoluzioni.scadaleva.business.comunicazione.entity.OpcuaNode</class>
+        <class>com.mainardisoluzioni.scadaleva.business.energia.entity.EventoEnergia</class>
+        <class>com.mainardisoluzioni.scadaleva.business.produzione.entity.EventoProduzione</class>
+        <class>com.mainardisoluzioni.scadaleva.business.produzione.entity.ParametroMacchinaProduzione</class>
+        <class>com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina</class>
         <properties>
             <!--Uncomment/comment for enabling/disabling database creation and population-->
             <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
@@ -15,14 +21,14 @@
             <property name="eclipselink.logging.parameters" value="true"/>-->
         </properties>
     </persistence-unit>
-    <!--<persistence-unit name="scadaleva_readOnly_PU" transaction-type="JTA">
+    <persistence-unit name="scadaleva_readOnly_PU" transaction-type="JTA">
         <jta-data-source>jdbc/mysql_scadaleva</jta-data-source>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <class>com.mainardisoluzioni.scadaleva.business.produzione.entity.OrdineDiProduzione</class>
-        <properties>-->
+        <properties>
             <!--Uncomment/comment for enabling/disabling sql logging-->
             <!--<property name="eclipselink.logging.level.sql" value="FINE"/>
             <property name="eclipselink.logging.parameters" value="true"/>-->
-        <!--</properties>
-    </persistence-unit>-->
+        </properties>
+    </persistence-unit>
 </persistence>

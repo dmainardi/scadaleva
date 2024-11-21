@@ -27,47 +27,35 @@ import java.time.LocalDate;
  * @author adminavvimpa
  */
 @Entity
-@Table(name = "odl")
+@Table(name = "dfi4godl")
 public class OrdineDiProduzione {
-    @Id
-    private Long id;
     
-    @Column(name = "numero_odl", length = 15)
+    @Id
+    @Column(name = "numodl_0", length = 15)
     private String numeroOrdineDiLavoro;
     
-    @Column(name = "data_odl")
+    @Column(name = "dataodl_0")
     private LocalDate dataOrdineDiLavoro;
     
-    @Column(name = "codice_macchina", length = 7)
+    @Column(name = "codmac_0", length = 7)
     private String codiceMacchina;
     
-    @Column(name = "codice_articolo", length = 20)
+    @Column(name = "codart_0", length = 20)
     private String codiceArticolo;
     
-    @Column(name = "descrizione_articolo", length = 40)
-    private String descrizioneArticolo;
-    
-    @Column(name = "codice_programma", length = 25)
+    @Column(name = "program_0", length = 25)
     private String codiceRicettaRichiesta;
     
-    @Column(name = "stato_old", length = 1)
+    @Column(name = "statoodl_0", length = 1)
     private String statoOdl;
     
-    @Column(length = 15)
+    @Column(name = "lotpro_0", length = 15)
     private String lotto;
     
-    @Column(name = "quantita_da_realizzare")
+    @Column(name = "qtadapro_0")
     private Double quantitaDaRealizzare;
 
     public OrdineDiProduzione() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getNumeroOrdineDiLavoro() {
@@ -100,14 +88,6 @@ public class OrdineDiProduzione {
 
     public void setCodiceArticolo(String codiceArticolo) {
         this.codiceArticolo = codiceArticolo;
-    }
-
-    public String getDescrizioneArticolo() {
-        return descrizioneArticolo;
-    }
-
-    public void setDescrizioneArticolo(String descrizioneArticolo) {
-        this.descrizioneArticolo = descrizioneArticolo;
     }
 
     public String getCodiceRicettaRichiesta() {

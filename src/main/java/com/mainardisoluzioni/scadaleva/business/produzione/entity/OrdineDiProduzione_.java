@@ -16,18 +16,16 @@
  */
 package com.mainardisoluzioni.scadaleva.business.produzione.entity;
 
-import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
 import jakarta.persistence.metamodel.SingularAttribute;
 import jakarta.persistence.metamodel.StaticMetamodel;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 /**
  *
  * @author adminavvimpa
  */
-@StaticMetamodel(EventoProduzione.class)
-public class EventoProduzione_ {
-    public static volatile SingularAttribute<EventoProduzione, Macchina> macchina;
-    public static volatile SingularAttribute<EventoProduzione, LocalDateTime> timestampProduzione;
-    public static volatile SingularAttribute<EventoProduzione, Integer> quantita;
+@StaticMetamodel(OrdineDiProduzione.class)
+public class OrdineDiProduzione_ {
+    public static volatile SingularAttribute<OrdineDiProduzione, LocalDate> dataOrdineDiProduzione;
+    public static volatile SingularAttribute<OrdineDiProduzione, String> codiceMacchina;
 }

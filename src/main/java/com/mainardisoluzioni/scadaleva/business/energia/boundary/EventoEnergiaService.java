@@ -35,7 +35,7 @@ import java.time.ZoneId;
  */
 @Stateless
 public class EventoEnergiaService {
-    @PersistenceContext
+    @PersistenceContext(unitName = "scadaleva_PU")
     EntityManager em;
     
     public void createAndSave(@NotNull Macchina macchina, @NotBlank String timestamp, @NotNull BigDecimal consumoWh) {

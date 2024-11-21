@@ -32,10 +32,10 @@ public class OrdineDiProduzione {
     
     @Id
     @Column(name = "numodl_0", length = 15)
-    private String numeroOrdineDiLavoro;
+    private String numeroOrdineDiProduzione;
     
     @Column(name = "dataodl_0")
-    private LocalDate dataOrdineDiLavoro;
+    private LocalDate dataOrdineDiProduzione;
     
     @Column(name = "codmac_0", length = 7)
     private String codiceMacchina;
@@ -54,24 +54,27 @@ public class OrdineDiProduzione {
     
     @Column(name = "qtadapro_0")
     private Double quantitaDaRealizzare;
+    
+    @Column(name = "qtaprod_0")
+    private Double quantitaProdottaCorrettamente;
 
     public OrdineDiProduzione() {
     }
 
-    public String getNumeroOrdineDiLavoro() {
-        return numeroOrdineDiLavoro;
+    public String getNumeroOrdineDiProduzione() {
+        return numeroOrdineDiProduzione;
     }
 
-    public void setNumeroOrdineDiLavoro(String numeroOrdineDiLavoro) {
-        this.numeroOrdineDiLavoro = numeroOrdineDiLavoro;
+    public void setNumeroOrdineDiProduzione(String numeroOrdineDiProduzione) {
+        this.numeroOrdineDiProduzione = numeroOrdineDiProduzione;
     }
 
-    public LocalDate getDataOrdineDiLavoro() {
-        return dataOrdineDiLavoro;
+    public LocalDate getDataOrdineDiProduzione() {
+        return dataOrdineDiProduzione;
     }
 
-    public void setDataOrdineDiLavoro(LocalDate dataOrdineDiLavoro) {
-        this.dataOrdineDiLavoro = dataOrdineDiLavoro;
+    public void setDataOrdineDiProduzione(LocalDate dataOrdineDiProduzione) {
+        this.dataOrdineDiProduzione = dataOrdineDiProduzione;
     }
 
     public String getCodiceMacchina() {
@@ -120,6 +123,14 @@ public class OrdineDiProduzione {
 
     public void setQuantitaDaRealizzare(Double quantitaDaRealizzare) {
         this.quantitaDaRealizzare = quantitaDaRealizzare;
+    }
+
+    public Double getQuantitaProdottaCorrettamente() {
+        return quantitaProdottaCorrettamente;
+    }
+
+    public void setQuantitaProdottaCorrettamente(Double quantitaProdottaCorrettamente) {
+        this.quantitaProdottaCorrettamente = quantitaProdottaCorrettamente;
     }
     
 }

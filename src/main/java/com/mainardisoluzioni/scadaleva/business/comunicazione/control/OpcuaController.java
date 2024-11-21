@@ -20,7 +20,9 @@ import com.mainardisoluzioni.scadaleva.business.comunicazione.boundary.OpcuaDevi
 import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.OpcuaDevice;
 import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.OpcuaNode;
 import com.mainardisoluzioni.scadaleva.business.produzione.boundary.EventoProduzioneService;
+import com.mainardisoluzioni.scadaleva.business.produzione.boundary.OrdineDiProduzioneService;
 import com.mainardisoluzioni.scadaleva.business.produzione.entity.EventoProduzione;
+import com.mainardisoluzioni.scadaleva.business.produzione.entity.OrdineDiProduzione;
 import com.mainardisoluzioni.scadaleva.business.produzione.entity.ParametroMacchinaProduzione;
 import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
 import jakarta.annotation.PostConstruct;
@@ -30,8 +32,10 @@ import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotNull;
+import java.text.DateFormat;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +44,8 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfigBuilder;
 import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaSubscription;
@@ -47,13 +53,16 @@ import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaSubscriptionManager
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedDataItem;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
 import org.eclipse.milo.opcua.stack.client.DiscoveryClient;
+import org.eclipse.milo.opcua.stack.core.AttributeId;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
+import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned;
 import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
+import org.eclipse.milo.opcua.stack.core.types.structured.WriteValue;
 import org.eclipse.milo.opcua.stack.core.util.EndpointUtil;
 
 /**
@@ -69,6 +78,9 @@ public class OpcuaController {
     
     @Inject
     EventoProduzioneService eventoProduzioneService;
+    
+    @Inject
+    OrdineDiProduzioneService ordineDiProduzioneService;
     
     private Map<OpcUaClient, OpcuaDevice> clients;
     private Map<Macchina, Integer> lastCycleCounters;   // ultimo valore del contapezzi
@@ -159,7 +171,10 @@ public class OpcuaController {
 
                 String cycleCounterStr = String.valueOf(value.getValue().getValue());
                 Integer currentCycleCounter = Integer.valueOf(cycleCounterStr);
+                OrdineDiProduzione ordineDiProduzione = ordineDiProduzioneService.getLastOrdineDiProduzione(macchina.getCodice());
                 EventoProduzione eventoProduzione = new EventoProduzione();
+                if (ordineDiProduzione != null)
+                    eventoProduzione.setNumeroOrdineDiProduzione(ordineDiProduzione.getNumeroOrdineDiProduzione());
                 eventoProduzione.setMacchina(opcuaDeviceTemp.getMacchina());
                 eventoProduzione.setTimestampProduzione(LocalDateTime.now(Clock.systemUTC()));
                 Integer previousCycleCounter = lastCycleCounters.getOrDefault(macchina, 0);
@@ -176,6 +191,60 @@ public class OpcuaController {
                         currentCycleCounter
                 );
 
+                List<WriteValue> writeValues = new ArrayList<>();
+                for (OpcuaNode opcuaNodeTemp : opcuaDeviceTemp.getOpcuaNodes()) {
+                    Variant variant = null;
+                    if (ordineDiProduzione != null) {
+                        switch (opcuaNodeTemp.getCategoriaVariabileProduzione()) {
+                            case CODICE_ARTICOLO:
+                                variant = new Variant(ordineDiProduzione.getCodiceArticolo());
+                                break;
+                            case CODICE_ORDINE_DI_PRODUZIONE:
+                                variant = new Variant(ordineDiProduzione.getNumeroOrdineDiProduzione());
+                                break;
+                            case CONTAPEZZI:
+                                break;
+                            case DATA_ORDINE_DI_PRODUZIONE:
+                                variant = new Variant(DateTimeFormatter.ISO_DATE.format(ordineDiProduzione.getDataOrdineDiProduzione()));
+                                break;
+                            case LOTTO:
+                                variant = new Variant(ordineDiProduzione.getLotto());
+                                break;
+                            case QUANTITA_PRODOTTA_CORRETTAMENTE:
+                                variant = new Variant(ordineDiProduzione.getQuantitaProdottaCorrettamente().intValue());
+                                break;
+                            case QUANTITA_RICHIESTA:
+                                variant = new Variant(ordineDiProduzione.getQuantitaDaRealizzare().intValue());
+                                break;
+                            case RICETTA_IMPOSTATA_CODICE:
+                                break;
+                            case RICETTA_RICHIESTA_CODICE:
+                                variant = new Variant(ordineDiProduzione.getCodiceRicettaRichiesta());
+                                break;
+                            default:
+                                variant = new Variant("Categoria variabile produzione non impostata");
+                        }
+                    }
+                    else
+                        variant = new Variant(null);
+                    if (variant != null)
+                        writeValues.add(
+                                new WriteValue(
+                                        createNodeId(opcuaNodeTemp),
+                                        AttributeId.Value.uid(),
+                                        null, // indexRange
+                                        DataValue.valueOnly(variant)
+                                )
+                        );
+                }
+                if (!writeValues.isEmpty()) {
+                    try {
+                        client.write(writeValues).get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        System.err.println("OpcuaController:createSubscription(DataChangeListener) - Errore: " + e.getLocalizedMessage());
+                    }
+                }
+                
                 for (OpcuaNode opcuaNodeTemp : opcuaDeviceTemp.getOpcuaNodes()) {
                     try {
                         if (opcuaNodeTemp.getCategoriaVariabileProduzione() != CategoriaVariabileProduzione.CONTAPEZZI) {

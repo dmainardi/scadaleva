@@ -46,7 +46,7 @@ public class EventoProduzione {
     private Long id;
     
     @Column(length = 15)
-    private String numeroOrdineDiLavoro;
+    private String numeroOrdineDiProduzione;
     
     @ManyToOne(optional = false)
     @JoinColumn(name = "Macchina", referencedColumnName = "codice")
@@ -77,12 +77,12 @@ public class EventoProduzione {
         this.id = id;
     }
 
-    public String getNumeroOrdineDiLavoro() {
-        return numeroOrdineDiLavoro;
+    public String getNumeroOrdineDiProduzione() {
+        return numeroOrdineDiProduzione;
     }
 
-    public void setNumeroOrdineDiLavoro(String numeroOrdineDiLavoro) {
-        this.numeroOrdineDiLavoro = numeroOrdineDiLavoro;
+    public void setNumeroOrdineDiProduzione(String numeroOrdineDiProduzione) {
+        this.numeroOrdineDiProduzione = numeroOrdineDiProduzione;
     }
 
     public Macchina getMacchina() {

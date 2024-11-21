@@ -27,7 +27,7 @@ import jakarta.persistence.PersistenceContext;
  */
 @Stateless
 public class EventoProduzioneService {
-    @PersistenceContext
+    @PersistenceContext(unitName = "scadaleva_PU")
     EntityManager em;
     
     public EventoProduzione save(EventoProduzione eventoProduzione) {

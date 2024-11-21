@@ -31,7 +31,7 @@ import java.util.List;
  */
 @Stateless
 public class MqttDeviceService {
-    @PersistenceContext
+    @PersistenceContext(unitName = "scadaleva_PU")
     EntityManager em;
     
     public List<MqttDevice> list() {

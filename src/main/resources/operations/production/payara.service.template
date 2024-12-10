@@ -1,0 +1,19 @@
+[Unit]
+Description=Manage Payara Server
+Requires=postgresql.service
+After=postgresql.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=forking
+PIDFile=AS_HOME/glassfish/domains/AS_DOMAIN_NAME/config/pid
+Restart=no
+TimeoutSec=300
+GuessMainPID=True
+User=AS_USER_NAME
+Group=AS_GROUP
+ExecStart=AS_HOME/bin/asadmin start-domain AS_DOMAIN_NAME
+ExecStop=AS_HOME/bin/asadmin stop-domain AS_DOMAIN_NAME
+
+[Install]
+WantedBy=multi-user.target

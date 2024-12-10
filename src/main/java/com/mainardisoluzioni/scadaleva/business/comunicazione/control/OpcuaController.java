@@ -25,6 +25,7 @@ import com.mainardisoluzioni.scadaleva.business.produzione.entity.EventoProduzio
 import com.mainardisoluzioni.scadaleva.business.produzione.entity.OrdineDiProduzione;
 import com.mainardisoluzioni.scadaleva.business.produzione.entity.ParametroMacchinaProduzione;
 import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
+import io.netty.channel.ConnectTimeoutException;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.ejb.Schedule;
@@ -32,7 +33,6 @@ import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotNull;
-import java.text.DateFormat;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -44,8 +44,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfigBuilder;
 import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaSubscription;
@@ -117,9 +115,21 @@ public class OpcuaController {
                 listen(opcuaDevice, client);
                 clients.put(client, opcuaDevice);
             } catch (InterruptedException | ExecutionException | NumberFormatException | UaException | TimeoutException ex) {
-                System.err.println("OpcuaController:init - Errore: " + ex.getLocalizedMessage());
+                if (!getCause(ex).getClass().equals(ConnectTimeoutException.class)) // evita di 'sporcare' i log con ConnectTimeoutException quando le macchine sono spente
+                    System.err.println("OpcuaController:init - Errore: " + ex.getLocalizedMessage());
             }
         }
+    }
+    
+    private Throwable getCause(Throwable e) {
+        Throwable cause = null; 
+        Throwable result = e;
+        
+        while(null != (cause = result.getCause())  && (result != cause) ) {
+            result = cause;
+        }
+        
+        return result;
     }
     
     private void listen(@NotNull OpcuaDevice opcuaDevice, @NotNull OpcUaClient client) throws UaException {
@@ -277,7 +287,7 @@ public class OpcuaController {
 
         ManagedDataItem managedDataItem = subscription.createDataItem(createNodeId(opcuaNode));
         if (managedDataItem.getStatusCode().isGood()) {
-            System.out.println(String.format("item created for nodeId={%s}", managedDataItem.getNodeId()));
+            //System.out.println(String.format("item created for nodeId={%s}", managedDataItem.getNodeId()));
 
             dataItems.add(managedDataItem);
         } else {
@@ -287,17 +297,10 @@ public class OpcuaController {
     
     @Schedule(minute = "*/5", hour = "*", persistent = false)
     protected void checkOpcuaDevicesLiveness() {
-        System.out.println("Adesso provo a vedere se la macchina precedentemente spenta si è accesa");
+        //System.out.println("Adesso provo a vedere se la macchina precedentemente spenta si è accesa");
         
         List<OpcuaDevice> opcuaDevices = opcuaDeviceService.list();
         if (opcuaDevices != null) {
-            /*for (Iterator<OpcuaDevice> iterator = opcuaDevices.iterator(); iterator.hasNext();) {
-                OpcuaDevice opcuaDevice = iterator.next();
-                for (OpcuaDevice opcuaDeviceConnected : clients.values()) {
-                    if (opcuaDeviceConnected.getId().equals(opcuaDevice.getId()))
-                       iterator.remove();
-                }
-            }*/
             opcuaDevices.removeIf(device -> clients.values().stream().filter(d -> d.getId().equals(device.getId())).findAny().isPresent());
             createAndConnectToClients(opcuaDevices);
         }

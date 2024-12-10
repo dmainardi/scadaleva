@@ -11,4 +11,4 @@ psql -c "CREATE ROLE ${DB_ACCOUNTING_USER_NAME} NOSUPERUSER NOCREATEDB NOCREATER
 rm dbAccountingUserPassword
 
 # Aggiunge la regola in modo che l'utente DB_ACCOUNTING_USER_NAME possa accedere al database DB_NAME dalla stessa sotto-rete
-echo "host ${DB_NAME} ${DB_ACCOUNTING_USER_NAME} samenet md5" >> /etc/postgresql/15/main/pg_hba.conf
+echo "host ${DB_NAME} ${DB_ACCOUNTING_USER_NAME} 192.168.1.0/24 md5" >> /etc/postgresql/15/main/pg_hba.conf

@@ -183,7 +183,7 @@ updateApplicationServer()
         'bash -s' < 0_installazionePayara.sh
 
     # Configurare Payara
-    scp -P $(config_get SSH_PORT) $(config_get IDE_WORKSPACE)/Payara5/appserver/admin/production_domain_template/target/production-domain.jar $(config_get AS_USER_NAME)@$(config_get IP_ADDRESS):$(config_get AS_HOME)/glassfish/common/templates/gf/
+    scp -P $(config_get SSH_PORT) $(config_get IDE_WORKSPACE)/Payara/appserver/admin/production_domain_template/target/production-domain.jar $(config_get AS_USER_NAME)@$(config_get IP_ADDRESS):$(config_get AS_HOME)/glassfish/common/templates/gf/
     scp -P $(config_get SSH_PORT) *Password $(config_get AS_USER_NAME)@$(config_get IP_ADDRESS):
     mvn -f $(config_get IDE_WORKSPACE)/$(config_get APP_NAME)/pom.xml -DincludeScope=provided -DexcludeArtifactIds=javax.mail,jakarta.jakartaee-api,activation -DoutputDirectory=$(config_get IDE_WORKSPACE)/$(config_get APP_NAME)/target/libs-temp/ dependency:copy-dependencies
     scp -P $(config_get SSH_PORT) $(config_get IDE_WORKSPACE)/$(config_get APP_NAME)/target/libs-temp/* $(config_get AS_USER_NAME)@$(config_get IP_ADDRESS):
@@ -197,6 +197,7 @@ updateApplicationServer()
         DB_READ_ONLY_USER_PASSWORD_ALIAS_NAME=$(config_get DB_READ_ONLY_USER_PASSWORD_ALIAS_NAME) \
         DB_READ_ONLY_NAME=$(config_get DB_READ_ONLY_NAME) \
         IP_READ_ONLY_ADDRESS=$(config_get IP_READ_ONLY_ADDRESS) \
+        TCP_READ_ONLY_PORT=$(config_get TCP_READ_ONLY_PORT) \
         APP_NAME=$(config_get APP_NAME) \
         'bash -s' < 0_configurazionePayara.sh
 
@@ -251,7 +252,7 @@ update_libraries=false
 update_application_server=false
 
 if [ $# -ne 0 ]; then
-    echo Target system is $(config_get IP_ADDRESS) \($(config_get FQDN)\)
+    echo Target system is $(config_get IP_ADDRESS)
     prompt_confirm || exit 0
     for arg
     do

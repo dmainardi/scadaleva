@@ -64,6 +64,7 @@ ssh -p $(config_get SSH_PORT) $(config_get AS_USER_NAME)@$(config_get IP_ADDRESS
     DB_READ_ONLY_USER_PASSWORD_ALIAS_NAME=$(config_get DB_READ_ONLY_USER_PASSWORD_ALIAS_NAME) \
     DB_READ_ONLY_NAME=$(config_get DB_READ_ONLY_NAME) \
     IP_READ_ONLY_ADDRESS=$(config_get IP_READ_ONLY_ADDRESS) \
+    TCP_READ_ONLY_PORT=$(config_get TCP_READ_ONLY_PORT) \
     APP_NAME=$(config_get APP_NAME) \
     'bash -s' < 0_configurazionePayara.sh
 

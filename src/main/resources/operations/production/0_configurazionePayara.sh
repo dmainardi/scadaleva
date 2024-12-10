@@ -47,9 +47,9 @@ ${AS_HOME}/bin/asadmin create-jdbc-connection-pool \
 password=\$\{ALIAS=${DB_READ_ONLY_USER_PASSWORD_ALIAS_NAME}\}:\
 databaseName=${DB_READ_ONLY_NAME}:\
 serverName=${IP_READ_ONLY_ADDRESS}:\
-portNumber=50388:\
+portNumber=${TCP_READ_ONLY_PORT}:\
 encrypt=false:\
-url=jdbc\\:sqlserver\\://${IP_READ_ONLY_ADDRESS}\\:50388/${DB_READ_ONLY_NAME} \
+url=jdbc\\:sqlserver\\://${IP_READ_ONLY_ADDRESS}\\:${TCP_READ_ONLY_PORT}/${DB_READ_ONLY_NAME} \
 sqlserver_${APP_NAME}_pool
 # Crea JDBC resource for Accounting database
 ${AS_HOME}/bin/asadmin create-jdbc-resource --connectionpoolid sqlserver_${APP_NAME}_pool jdbc/sqlserver_${APP_NAME}

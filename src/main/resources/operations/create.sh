@@ -2,7 +2,7 @@
 readonly IDE_WORKSPACE=$HOME/NetBeansProjects
 readonly AS_LIBFOLDER=$HOME/payara6/glassfish/domains/domain1/lib
 readonly APP_NAME=scadaleva
-readonly IP_ADDRESS=192.168.1.125
+readonly IP_ADDRESS=192.168.220.221
 readonly DB_NAME="${APP_NAME}"
 readonly DB_USER_NAME="${APP_NAME}"
 readonly DB_USER_PASSWORD=123Stella!!!
@@ -20,21 +20,20 @@ mvn -f "${IDE_WORKSPACE}"/"${APP_NAME}"/pom.xml -DincludeScope=provided -Dexclud
 \
 ./asadmin start-domain
 ./asadmin add-library $HOME/"${APP_NAME}"/*.jar
+
+# Crea il collegamento col database principale
 ./asadmin create-jdbc-connection-pool \
---datasourceclassname=org.postgresql.ds.PGSimpleDataSource \
+--datasourceclassname com.mysql.cj.jdbc.MysqlDataSource \
 --restype=javax.sql.DataSource \
---validationmethod=auto-commit \
---allownoncomponentcallers=false \
---nontransactionalconnections=false \
---driverclassname=org.postgresql.Driver \
---property user="${DB_USER_NAME}":\
+--property \
+user="${DB_USER_NAME}":\
 password="${DB_USER_PASSWORD}":\
-databaseName="${DB_NAME}":\
-serverName="${IP_ADDRESS}":\
-portNumber=5432:\
-url=jdbc\\:postgresql\\://"${IP_ADDRESS}"\\:5432/"${DB_NAME}" \
-postgres_"${APP_NAME}"_pool
-./asadmin create-jdbc-resource --connectionpoolid postgres_"${APP_NAME}"_pool jdbc/postgres_"${APP_NAME}"
+DatabaseName="${DB_NAME}":\
+ServerName="${IP_ADDRESS}":\
+portNumber="${TCP_READ_ONLY_PORT}":\
+useSSL=false \
+mysql_${APP_NAME}_pool
+./asadmin create-jdbc-resource --connectionpoolid mysql_"${APP_NAME}"_pool jdbc/mysql_"${APP_NAME}"
 
 # Crea l'alias password per il collegamento col databse in sola lettura della BiElle
 ./asadmin --passwordfile "${IDE_WORKSPACE}"/"${APP_NAME}"/src/main/resources/operations/dbReadOnlyUserPassword create-password-alias ${DB_READ_ONLY_USER_PASSWORD_ALIAS_NAME}
@@ -47,7 +46,7 @@ password=\$\{ALIAS=${DB_READ_ONLY_USER_PASSWORD_ALIAS_NAME}\}:\
 DatabaseName="${DB_READ_ONLY_NAME}":\
 ServerName="${IP_READ_ONLY_ADDRESS}":\
 portNumber="${TCP_READ_ONLY_PORT}" \
-mysql_${APP_NAME}_pool
-./asadmin create-jdbc-resource --connectionpoolid mysql_"${APP_NAME}"_pool jdbc/mysql_"${APP_NAME}"
+mysql_readOnly_${APP_NAME}_pool
+./asadmin create-jdbc-resource --connectionpoolid mysql_readOnly_"${APP_NAME}"_pool jdbc/mysql_readOnly_"${APP_NAME}"
 
 ./asadmin stop-domain

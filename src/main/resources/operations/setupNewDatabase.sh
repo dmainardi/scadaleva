@@ -3,6 +3,12 @@
 readonly APP_NAME=scadaleva
 readonly DB_NAME="${APP_NAME}"
 readonly DB_USER_NAME="${DB_NAME}"
+readonly DB_USER_PASSWORD=123Stella!!!
 
-createuser -d -P scadaleva
-createdb --owner=scadaleva --encoding=UTF8 scadaleva
+mysql
+
+CREATE DATABASE scadaleva;
+CREATE USER scadaleva IDENTIFIED BY '123Stella!!!';
+GRANT ALL PRIVILEGES ON scadaleva.* TO scadaleva;
+
+\q

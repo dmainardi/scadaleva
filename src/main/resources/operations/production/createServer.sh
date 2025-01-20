@@ -60,6 +60,7 @@ ssh -p $(config_get SSH_PORT) $(config_get AS_USER_NAME)@$(config_get IP_ADDRESS
     AS_PASSWORD_ALIAS_NAME=$(config_get AS_PASSWORD_ALIAS_NAME) \
     DB_USER_NAME=$(config_get DB_USER_NAME) \
     DB_NAME=$(config_get DB_NAME) \
+    TCP_PORT=$(config_get TCP_PORT) \
     DB_READ_ONLY_USER_NAME=$(config_get DB_READ_ONLY_USER_NAME) \
     DB_READ_ONLY_USER_PASSWORD_ALIAS_NAME=$(config_get DB_READ_ONLY_USER_PASSWORD_ALIAS_NAME) \
     DB_READ_ONLY_NAME=$(config_get DB_READ_ONLY_NAME) \

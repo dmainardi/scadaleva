@@ -114,3 +114,6 @@ ssh -p $(config_get SSH_PORT) root@$(config_get IP_ADDRESS) \
 # Riavviare il server
 ssh -p $(config_get SSH_PORT) root@$(config_get IP_ADDRESS) 'reboot && exit'
 
+# Ricordarsi di mettere in sicurezza MariaDb col comando (da fare in modo interrattivo)
+#ssh -p $(config_get SSH_PORT) $(config_get AS_USER_NAME)@$(config_get IP_ADDRESS)
+#sudo mysql_secure_installation

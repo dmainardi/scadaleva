@@ -42,7 +42,6 @@ password=\$\{ALIAS=${DB_READ_ONLY_USER_PASSWORD_ALIAS_NAME}\}:\
 DatabaseName=${DB_READ_ONLY_NAME}:\
 ServerName=${IP_READ_ONLY_ADDRESS}:\
 portNumber=${TCP_READ_ONLY_PORT} \
-useSSL=false \
 mysql_readOnly_${APP_NAME}_pool
 # Crea JDBC resource for Accounting database
 ${AS_HOME}/bin/asadmin create-jdbc-resource --connectionpoolid mysql_readOnly_${APP_NAME}_pool jdbc/mysql_readOnly_${APP_NAME}

@@ -1,10 +1,18 @@
 #!/usr/bin/env bash
 
 # Crea il database vuoto
-createdb --owner=${DB_USER_NAME} --encoding=UTF8 --template=template0 ${DB_NAME}
+mysql -e "CREATE DATABASE ${DB_NAME};"
+
+# Assegna tutti i privilegi all'utente del database di produzione
+mysql -e "GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO ${DB_USER_NAME};"
+
+# Assegna i privilegi in sola lettura solo per la tabella 'eventoProduzione' all'utente utile al programma di contabilità
+mysql -e "GRANT SELECT PRIVILEGES ON ${DB_NAME}.EVENTOPRODUZIONE TO ${DB_ACCOUNTING_USER_NAME};"
 
 # Copia i dati sul database di produzione
 gzip --uncompress ${DB_INITIAL_FILENAME_COMPRESSED}
-pg_restore -d ${DB_NAME} ${DB_INITIAL_FILENAME}
+mariadb ${DB_NAME} < ${DB_INITIAL_FILENAME}
 rm ${DB_INITIAL_FILENAME}
 
+# Per fare il backup del database usare
+#mariadb-dump ${DB_NAME} | gzip > ${DB_INITIAL_FILENAME_COMPRESSED}

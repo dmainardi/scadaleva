@@ -1,7 +1,7 @@
 [Unit]
 Description=Manage Payara Server
-Requires=postgresql.service
-After=postgresql.service
+Requires=mariadb.service
+After=mariadb.service
 StartLimitIntervalSec=0
 
 [Service]

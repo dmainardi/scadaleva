@@ -56,15 +56,15 @@ updateDatabase()
 {
     echo "Updating database..."
 
-    scp -P $(config_get SSH_PORT) $(config_get DB_INITIAL_FILENAME_COMPRESSED) postgres@$(config_get IP_ADDRESS):
+    scp -P $(config_get SSH_PORT) $(config_get DB_INITIAL_FILENAME_COMPRESSED) mysql@$(config_get IP_ADDRESS):
 
     # Eliminare il database
-    ssh -p $(config_get SSH_PORT) postgres@$(config_get IP_ADDRESS) \
+    ssh -p $(config_get SSH_PORT) mysql@$(config_get IP_ADDRESS) \
         DB_NAME=$(config_get DB_NAME) \
         'bash -s' < 0_rimozioneDatabase.sh
 
     #Creare il database e copiarne i dati
-    ssh -p $(config_get SSH_PORT) postgres@$(config_get IP_ADDRESS) \
+    ssh -p $(config_get SSH_PORT) mysql@$(config_get IP_ADDRESS) \
         DB_USER_NAME=$(config_get DB_USER_NAME) \
         DB_NAME=$(config_get DB_NAME) \
         DB_INITIAL_FILENAME_COMPRESSED=$(config_get DB_INITIAL_FILENAME_COMPRESSED) \

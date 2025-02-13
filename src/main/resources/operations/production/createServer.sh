@@ -15,11 +15,11 @@ ssh -p $(config_get SSH_PORT) root@$(config_get IP_ADDRESS) \
     'bash -s' < 0_creazioneUtente.sh
 ssh-copy-id -p $(config_get SSH_PORT) $(config_get AS_USER_NAME)@$(config_get IP_ADDRESS)
 
-# Installare e configurare postgresql
-scp -P $(config_get SSH_PORT) postgresUserPassword root@$(config_get IP_ADDRESS):
+# Installare e configurare mysql
+scp -P $(config_get SSH_PORT) mysqlUserPassword root@$(config_get IP_ADDRESS):
 ssh -p $(config_get SSH_PORT) root@$(config_get IP_ADDRESS) \
-    'bash -s' < 0_installazionePostgres.sh
-ssh-copy-id -p $(config_get SSH_PORT) postgres@$(config_get IP_ADDRESS)
+    'bash -s' < 0_installazioneMysql.sh
+ssh-copy-id -p $(config_get SSH_PORT) mysql@$(config_get IP_ADDRESS)
 
 # Installare Java 17 (predefinito) se si usa Debian 12
 ssh -p $(config_get SSH_PORT) root@$(config_get IP_ADDRESS) 'apt-get -qy install unzip default-jdk-headless'
@@ -33,17 +33,18 @@ ssh -p $(config_get SSH_PORT) root@$(config_get IP_ADDRESS) \
     'bash -s' < 0_installazionePayara.sh
 
 # Creare l'utente del database di produzione
-scp -P $(config_get SSH_PORT) db*UserPassword postgres@$(config_get IP_ADDRESS):
-ssh -p $(config_get SSH_PORT) postgres@$(config_get IP_ADDRESS) \
+scp -P $(config_get SSH_PORT) db*UserPassword mysql@$(config_get IP_ADDRESS):
+ssh -p $(config_get SSH_PORT) mysql@$(config_get IP_ADDRESS) \
     DB_USER_NAME=$(config_get DB_USER_NAME) \
     DB_NAME=$(config_get DB_NAME) \
     DB_ACCOUNTING_USER_NAME=$(config_get DB_ACCOUNTING_USER_NAME) \
     'bash -s' < 0_creazioneUtenteDatabase.sh
 
 # Creare il database di produzione e copiarne i dati
-scp -P $(config_get SSH_PORT) $(config_get DB_INITIAL_FILENAME_COMPRESSED) postgres@$(config_get IP_ADDRESS):
-ssh -p $(config_get SSH_PORT) postgres@$(config_get IP_ADDRESS) \
+scp -P $(config_get SSH_PORT) $(config_get DB_INITIAL_FILENAME_COMPRESSED) mysql@$(config_get IP_ADDRESS):
+ssh -p $(config_get SSH_PORT) mysql@$(config_get IP_ADDRESS) \
     DB_USER_NAME=$(config_get DB_USER_NAME) \
+    DB_ACCOUNTING_USER_NAME=$(config_get DB_ACCOUNTING_USER_NAME) \
     DB_NAME=$(config_get DB_NAME) \
     DB_INITIAL_FILENAME_COMPRESSED=$(config_get DB_INITIAL_FILENAME_COMPRESSED) \
     DB_INITIAL_FILENAME=$(config_get DB_INITIAL_FILENAME) \

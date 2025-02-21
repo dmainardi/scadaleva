@@ -22,14 +22,31 @@ package com.mainardisoluzioni.scadaleva.business.comunicazione.control;
  */
 public enum CategoriaVariabileProduzione {
     CONTAPEZZI(0),
-    RICETTA_RICHIESTA_CODICE(1),
-    RICETTA_IMPOSTATA_CODICE(2),
+    RICETTA_RICHIESTA_CODICE(1),                    // la ricetta indicata sull'ordine di produzione
+    RICETTA_IMPOSTATA_IN_SCRITTURA_CODICE(2),       // la ricetta che compare sul HMI
     CODICE_ORDINE_DI_PRODUZIONE(3),
     DATA_ORDINE_DI_PRODUZIONE(4),
     CODICE_ARTICOLO(5),
     LOTTO(6),
     QUANTITA_RICHIESTA(7),
-    QUANTITA_PRODOTTA_CORRETTAMENTE(8);
+    QUANTITA_PRODOTTA_CORRETTAMENTE(8),
+    FUNZIONAMENTO_CICLO_AUTOMATICO(9),
+    PRESENZA_ALLARME(10),
+    CODICE_ALLARME(11),
+    RICETTA_IMPOSTATA_IN_LETTURA_CODICE(12),        // la ricetta impostata letta dalla macchina
+    RISCALDO_INSERITO(13),
+    TEMPO_CICLO(14),
+    TEMPO_RISCALDO(15),
+    TEMPO_PRESSATA(16),
+    PERCENTUALE_RISCALDO_ZONA_1(17),
+    PERCENTUALE_RISCALDO_ZONA_2(18),
+    PERCENTUALE_RISCALDO_ZONA_3(19),
+    PERCENTUALE_RISCALDO_ZONA_4(20),
+    PERCENTUALE_RISCALDO_ZONA_5(21),
+    SOGLIA_PIROMETRO_1(22),
+    SOGLIA_PIROMETRO_2(23),
+    SOGLIA_PIROMETRO_3(24),
+    SOGLIA_PIROMETRO_4(25);
     
     private final int value;
     

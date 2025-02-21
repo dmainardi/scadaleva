@@ -226,7 +226,7 @@ public class OpcuaController {
                             case QUANTITA_RICHIESTA:
                                 variant = new Variant(ordineDiProduzione.getQuantitaDaRealizzare().intValue());
                                 break;
-                            case RICETTA_IMPOSTATA_CODICE:
+                            case RICETTA_IMPOSTATA_IN_SCRITTURA_CODICE:
                                 break;
                             case RICETTA_RICHIESTA_CODICE:
                                 variant = new Variant(ordineDiProduzione.getCodiceRicettaRichiesta());

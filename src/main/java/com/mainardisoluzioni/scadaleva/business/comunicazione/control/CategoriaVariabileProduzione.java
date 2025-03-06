@@ -29,7 +29,7 @@ public enum CategoriaVariabileProduzione {
     CODICE_ARTICOLO(5),
     LOTTO(6),
     QUANTITA_RICHIESTA(7),
-    QUANTITA_PRODOTTA_CORRETTAMENTE(8),
+    QUANTITA_PRODOTTA_CORRETTAMENTE(8),             // la quantità prodotta che compare sul HMI
     FUNZIONAMENTO_CICLO_AUTOMATICO(9),
     PRESENZA_ALLARME(10),
     CODICE_ALLARME(11),

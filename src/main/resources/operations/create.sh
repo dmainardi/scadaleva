@@ -2,7 +2,7 @@
 readonly IDE_WORKSPACE=$HOME/NetBeansProjects
 readonly AS_LIBFOLDER=$HOME/payara6/glassfish/domains/domain1/lib
 readonly APP_NAME=scadaleva
-readonly IP_ADDRESS=192.168.1.125
+readonly IP_ADDRESS=192.168.1.127
 readonly DB_NAME="${APP_NAME}"
 readonly DB_USER_NAME="${APP_NAME}"
 readonly DB_USER_PASSWORD=123Stella!!!
@@ -35,7 +35,7 @@ useSSL=false \
 mysql_${APP_NAME}_pool
 ./asadmin create-jdbc-resource --connectionpoolid mysql_"${APP_NAME}"_pool jdbc/mysql_"${APP_NAME}"
 
-# Crea l'alias password per il collegamento col databse in sola lettura della BiElle
+# Crea l'alias password per il collegamento col databse in sola lettura del gestionale interno
 ./asadmin --passwordfile "${IDE_WORKSPACE}"/"${APP_NAME}"/src/main/resources/operations/dbReadOnlyUserPassword create-password-alias ${DB_READ_ONLY_USER_PASSWORD_ALIAS_NAME}
 ./asadmin create-jdbc-connection-pool \
 --datasourceclassname com.mysql.cj.jdbc.MysqlDataSource \

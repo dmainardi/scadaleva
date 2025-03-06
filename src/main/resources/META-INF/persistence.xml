@@ -1,38 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence version="3.0" xmlns="https://jakarta.ee/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
-    <persistence-unit name="scadaleva_PU" transaction-type="JTA">
-        <jta-data-source>jdbc/mysql_scadaleva</jta-data-source>
-        
-        <class>com.mainardisoluzioni.scadaleva.business.comunicazione.entity.MqttDevice</class>
-        <class>com.mainardisoluzioni.scadaleva.business.comunicazione.entity.OpcuaDevice</class>
-        <class>com.mainardisoluzioni.scadaleva.business.comunicazione.entity.OpcuaNode</class>
-        <class>com.mainardisoluzioni.scadaleva.business.energia.entity.EventoEnergia</class>
-        <class>com.mainardisoluzioni.scadaleva.business.produzione.entity.EventoProduzione</class>
-        <class>com.mainardisoluzioni.scadaleva.business.produzione.entity.ParametroMacchinaProduzione</class>
-        <class>com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina</class>
-        <exclude-unlisted-classes>true</exclude-unlisted-classes>
-        
-        <properties>
-            <!--Uncomment/comment for enabling/disabling database creation and population-->
-            <!--<property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
+  <persistence-unit name="scadaleva_PU" transaction-type="JTA">
+    <jta-data-source>jdbc/mysql_scadaleva</jta-data-source>
+    <class>com.mainardisoluzioni.scadaleva.business.comunicazione.entity.MqttDevice</class>
+    <class>com.mainardisoluzioni.scadaleva.business.comunicazione.entity.OpcuaDevice</class>
+    <class>com.mainardisoluzioni.scadaleva.business.comunicazione.entity.OpcuaNode</class>
+    <class>com.mainardisoluzioni.scadaleva.business.energia.entity.EventoEnergia</class>
+    <class>com.mainardisoluzioni.scadaleva.business.produzione.entity.EventoProduzione</class>
+    <class>com.mainardisoluzioni.scadaleva.business.produzione.entity.ParametroMacchinaProduzione</class>
+    <class>com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina</class>
+    <class>com.mainardisoluzioni.scadaleva.business.produzione.entity.ProduzioneGestionale</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <properties>
+      <!--Uncomment/comment for enabling/disabling database creation and population-->
+      <!--<property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
             <property name="jakarta.persistence.sql-load-script-source" value="sql/insertInitialData.sql"/>-->
-            <!--<property name="jakarta.persistence.sql-load-script-source" value="sql/insertInitialDataProd.sql"/>-->
-            
-            <!--Uncomment/comment for enabling/disabling sql logging-->
-            <!--<property name="eclipselink.logging.level.sql" value="FINE"/>
+      <!--<property name="jakarta.persistence.sql-load-script-source" value="sql/insertInitialDataProd.sql"/>-->
+      <!--Uncomment/comment for enabling/disabling sql logging-->
+      <!--<property name="eclipselink.logging.level.sql" value="FINE"/>
             <property name="eclipselink.logging.parameters" value="true"/>-->
-        </properties>
-    </persistence-unit>
-    <persistence-unit name="scadaleva_readOnly_PU" transaction-type="JTA">
-        <jta-data-source>jdbc/mysql_readOnly_scadaleva</jta-data-source>
-        
-        <class>com.mainardisoluzioni.scadaleva.business.produzione.entity.OrdineDiProduzione</class>
-        <exclude-unlisted-classes>true</exclude-unlisted-classes>
-        
-        <properties>
-            <!--Uncomment/comment for enabling/disabling sql logging-->
-            <!--<property name="eclipselink.logging.level.sql" value="FINE"/>
+    </properties>
+  </persistence-unit>
+  <persistence-unit name="scadaleva_readOnly_PU" transaction-type="JTA">
+    <jta-data-source>jdbc/mysql_readOnly_scadaleva</jta-data-source>
+    <class>com.mainardisoluzioni.scadaleva.business.produzione.entity.OrdineDiProduzione</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <properties>
+      <!--Uncomment/comment for enabling/disabling sql logging-->
+      <!--<property name="eclipselink.logging.level.sql" value="FINE"/>
             <property name="eclipselink.logging.parameters" value="true"/>-->
-        </properties>
-    </persistence-unit>
+    </properties>
+  </persistence-unit>
 </persistence>

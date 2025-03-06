@@ -297,11 +297,11 @@ public class OpcuaController {
                     produzioneGestionale.setQuantita(ordineDiProduzione.getQuantitaDaRealizzare().intValue());
                     produzioneGestionale.setStatoLavorazione(ordineDiProduzione.getStatoOdl() != null && !ordineDiProduzione.getStatoOdl().isBlank() && ordineDiProduzione.getStatoOdl().equalsIgnoreCase("k") ? "T" : "L");
                 }
-                produzioneGestionale.setFunzionamentoCicloInAutomatico(eventoProduzione.getParametriMacchinaProduzione().stream().filter(pmp -> CategoriaVariabileProduzione.FUNZIONAMENTO_CICLO_AUTOMATICO == pmp.getOpcuaNode().getCategoriaVariabileProduzione()).map(pmp -> Integer.valueOf(pmp.getValore())).findFirst().orElse(null));
+                produzioneGestionale.setFunzionamentoCicloInAutomatico(eventoProduzione.getParametriMacchinaProduzione().stream().filter(pmp -> CategoriaVariabileProduzione.FUNZIONAMENTO_CICLO_AUTOMATICO == pmp.getOpcuaNode().getCategoriaVariabileProduzione()).map(pmp -> Boolean.valueOf(pmp.getValore()) ? 1 : 0).findFirst().orElse(null));
                 produzioneGestionale.setOrarioProduzione(LocalTime.now());
                 produzioneGestionale.setDataProduzione(LocalDate.now());
                 produzioneGestionale.setPezziProdotti(quantitaProdotta);
-                produzioneGestionale.setPresenzaAllarme(eventoProduzione.getParametriMacchinaProduzione().stream().filter(pmp -> CategoriaVariabileProduzione.PRESENZA_ALLARME == pmp.getOpcuaNode().getCategoriaVariabileProduzione()).map(pmp -> Integer.valueOf(pmp.getValore())).findFirst().orElse(null));
+                produzioneGestionale.setPresenzaAllarme(eventoProduzione.getParametriMacchinaProduzione().stream().filter(pmp -> CategoriaVariabileProduzione.PRESENZA_ALLARME == pmp.getOpcuaNode().getCategoriaVariabileProduzione()).map(pmp -> Boolean.valueOf(pmp.getValore()) ? 1 : 0).findFirst().orElse(null));
                 produzioneGestionaleService.save(produzioneGestionale);
                 // FINE codice per Gestionale interno aziendale
 

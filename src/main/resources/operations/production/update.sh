@@ -66,6 +66,7 @@ updateDatabase()
     #Creare il database e copiarne i dati
     ssh -p $(config_get SSH_PORT) mysql@$(config_get IP_ADDRESS) \
         DB_USER_NAME=$(config_get DB_USER_NAME) \
+        DB_ACCOUNTING_USER_NAME=$(config_get DB_ACCOUNTING_USER_NAME) \
         DB_NAME=$(config_get DB_NAME) \
         DB_INITIAL_FILENAME_COMPRESSED=$(config_get DB_INITIAL_FILENAME_COMPRESSED) \
         DB_INITIAL_FILENAME=$(config_get DB_INITIAL_FILENAME) \

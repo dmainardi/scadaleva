@@ -22,10 +22,11 @@ import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.OpcuaNode;
 import com.mainardisoluzioni.scadaleva.business.produzione.boundary.EventoProduzioneService;
 import com.mainardisoluzioni.scadaleva.business.produzione.boundary.OrdineDiProduzioneService;
 import com.mainardisoluzioni.scadaleva.business.produzione.boundary.ProduzioneGestionaleService;
+import com.mainardisoluzioni.scadaleva.business.produzione.control.EventoProduzioneController;
+import com.mainardisoluzioni.scadaleva.business.produzione.control.ProduzioneGestionaleController;
 import com.mainardisoluzioni.scadaleva.business.produzione.entity.EventoProduzione;
 import com.mainardisoluzioni.scadaleva.business.produzione.entity.OrdineDiProduzione;
 import com.mainardisoluzioni.scadaleva.business.produzione.entity.ParametroMacchinaProduzione;
-import com.mainardisoluzioni.scadaleva.business.produzione.entity.ProduzioneGestionale;
 import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
 import io.netty.channel.ConnectTimeoutException;
 import jakarta.annotation.PostConstruct;
@@ -36,9 +37,7 @@ import jakarta.ejb.Startup;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotNull;
 import java.time.Clock;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -188,21 +187,14 @@ public class OpcuaController {
 
                 String cycleCounterStr = String.valueOf(value.getValue().getValue());
                 Integer currentCycleCounter = Integer.valueOf(cycleCounterStr);
-                OrdineDiProduzione ordineDiProduzione = ordineDiProduzioneService.getLastOrdineDiProduzione(macchina.getCodice());
-                EventoProduzione eventoProduzione = new EventoProduzione();
-                if (ordineDiProduzione != null)
-                    eventoProduzione.setNumeroOrdineDiProduzione(ordineDiProduzione.getNumeroOrdineDiProduzione());
-                eventoProduzione.setMacchina(opcuaDeviceTemp.getMacchina());
-                eventoProduzione.setTimestampProduzione(LocalDateTime.now(Clock.systemUTC()));
                 Integer previousCycleCounter = lastCycleCounters.getOrDefault(macchina, 0);
                 Integer quantitaProdotta;
                 if (currentCycleCounter.compareTo(previousCycleCounter) < 0)
                     quantitaProdotta = currentCycleCounter;
                 else
                     quantitaProdotta = currentCycleCounter - previousCycleCounter;
-                eventoProduzione.setQuantita(
-                        quantitaProdotta
-                );
+                OrdineDiProduzione ordineDiProduzione = ordineDiProduzioneService.getLastOrdineDiProduzione(macchina.getCodice());
+                EventoProduzione eventoProduzione = EventoProduzioneController.createEventoProduzione(opcuaDeviceTemp.getMacchina(), LocalDateTime.now(Clock.systemUTC()), quantitaProdotta, ordineDiProduzione);
                 lastCycleCounters.put(
                         macchina,
                         currentCycleCounter
@@ -287,23 +279,17 @@ public class OpcuaController {
 
                 eventoProduzioneService.save(eventoProduzione);
                 
-                // INZIO codice per Gestionale interno aziendale
-                ProduzioneGestionale produzioneGestionale = new ProduzioneGestionale();
-                produzioneGestionale.setCodiceMacchina(macchina.getCodice());
-                produzioneGestionale.setCodiceRicettaImpostata(eventoProduzione.getParametriMacchinaProduzione().stream().filter(pmp -> CategoriaVariabileProduzione.RICETTA_IMPOSTATA_IN_LETTURA_CODICE == pmp.getCategoriaVariabileProduzione()).map(ParametroMacchinaProduzione::getValore).findFirst().orElse(null));
-                if (ordineDiProduzione != null) {
-                    produzioneGestionale.setDataOrdineDiProduzione(ordineDiProduzione.getDataOrdineDiProduzione());
-                    produzioneGestionale.setNumeroOrdineDiProduzione(ordineDiProduzione.getNumeroOrdineDiProduzione());
-                    produzioneGestionale.setQuantita(ordineDiProduzione.getQuantitaDaRealizzare().intValue());
-                    produzioneGestionale.setStatoLavorazione(ordineDiProduzione.getStatoOdl() != null && !ordineDiProduzione.getStatoOdl().isBlank() && ordineDiProduzione.getStatoOdl().equalsIgnoreCase("k") ? "T" : "L");
-                }
-                produzioneGestionale.setFunzionamentoCicloInAutomatico(eventoProduzione.getParametriMacchinaProduzione().stream().filter(pmp -> CategoriaVariabileProduzione.FUNZIONAMENTO_CICLO_AUTOMATICO == pmp.getCategoriaVariabileProduzione()).map(pmp -> Boolean.valueOf(pmp.getValore()) ? 1 : 0).findFirst().orElse(null));
-                produzioneGestionale.setOrarioProduzione(LocalTime.now());
-                produzioneGestionale.setDataProduzione(LocalDate.now());
-                produzioneGestionale.setPezziProdotti(quantitaProdotta);
-                produzioneGestionale.setPresenzaAllarme(eventoProduzione.getParametriMacchinaProduzione().stream().filter(pmp -> CategoriaVariabileProduzione.PRESENZA_ALLARME == pmp.getCategoriaVariabileProduzione()).map(pmp -> Boolean.valueOf(pmp.getValore()) ? 1 : 0).findFirst().orElse(null));
-                produzioneGestionaleService.save(produzioneGestionale);
-                // FINE codice per Gestionale interno aziendale
+                produzioneGestionaleService.save(
+                        ProduzioneGestionaleController.createAndSave(
+                                macchina.getCodice(),
+                                eventoProduzione.getParametriMacchinaProduzione().stream().filter(pmp -> CategoriaVariabileProduzione.RICETTA_IMPOSTATA_IN_LETTURA_CODICE == pmp.getCategoriaVariabileProduzione()).map(ParametroMacchinaProduzione::getValore).findFirst().orElse(null),
+                                ordineDiProduzione,
+                                eventoProduzione.getParametriMacchinaProduzione().stream().filter(pmp -> CategoriaVariabileProduzione.FUNZIONAMENTO_CICLO_AUTOMATICO == pmp.getCategoriaVariabileProduzione()).map(pmp -> Boolean.valueOf(pmp.getValore()) ? 1 : 0).findFirst().orElse(null),
+                                eventoProduzione.getParametriMacchinaProduzione().stream().filter(pmp -> CategoriaVariabileProduzione.PRESENZA_ALLARME == pmp.getCategoriaVariabileProduzione()).map(pmp -> Boolean.valueOf(pmp.getValore()) ? 1 : 0).findFirst().orElse(null),
+                                LocalDateTime.now(),
+                                quantitaProdotta
+                        )
+                );
 
                 //System.out.println("Macchina: " + clients.get(item.getClient()).getMacchina().getCodice());
                 //System.out.println(String.format("subscription value received: item={%s}, value={%s}", item.getNodeId(), value.getValue()));

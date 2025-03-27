@@ -27,7 +27,6 @@ import com.mainardisoluzioni.scadaleva.business.energia.entity.PayloadTelemetryT
 import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import jakarta.ejb.Startup;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import jakarta.json.bind.Jsonb;

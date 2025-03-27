@@ -17,9 +17,18 @@
 package com.mainardisoluzioni.scadaleva.business.produzione.boundary;
 
 import com.mainardisoluzioni.scadaleva.business.produzione.entity.EventoProduzione;
+import com.mainardisoluzioni.scadaleva.business.produzione.entity.EventoProduzione_;
+import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.NonUniqueResultException;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 /**
  *
@@ -37,5 +46,18 @@ public class EventoProduzioneService {
             return em.merge(eventoProduzione);
         
         return eventoProduzione;
+    }
+    
+    public LocalDateTime getLastTimestampProduzione(@NotNull Macchina macchina) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<LocalDateTime> query = cb.createQuery(LocalDateTime.class);
+        Root<EventoProduzione> root = query.from(EventoProduzione.class);
+        query.select(cb.greatest(root.get(EventoProduzione_.timestampProduzione)));
+        query.where(cb.equal(root.get(EventoProduzione_.macchina), macchina));
+        try {
+            return em.createQuery(query).getSingleResult();
+        } catch (NoResultException | NonUniqueResultException e) {
+            return null;
+        }
     }
 }

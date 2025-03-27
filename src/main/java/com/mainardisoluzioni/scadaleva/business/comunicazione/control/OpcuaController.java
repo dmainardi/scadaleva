@@ -269,7 +269,7 @@ public class OpcuaController {
                             if (!valore.isBlank())
                                 eventoProduzione.addParametroMacchinaProduzione(
                                         new ParametroMacchinaProduzione(
-                                                opcuaNodeTemp,
+                                                opcuaNodeTemp.getCategoriaVariabileProduzione(),
                                                 valore
                                         )
                                 );
@@ -277,7 +277,7 @@ public class OpcuaController {
                         else
                             eventoProduzione.addParametroMacchinaProduzione(
                                     new ParametroMacchinaProduzione(
-                                            opcuaNodeTemp,
+                                            opcuaNodeTemp.getCategoriaVariabileProduzione(),
                                             cycleCounterStr
                                     )
                             );
@@ -290,18 +290,18 @@ public class OpcuaController {
                 // INZIO codice per Gestionale interno aziendale
                 ProduzioneGestionale produzioneGestionale = new ProduzioneGestionale();
                 produzioneGestionale.setCodiceMacchina(macchina.getCodice());
-                produzioneGestionale.setCodiceRicettaImpostata(eventoProduzione.getParametriMacchinaProduzione().stream().filter(pmp -> CategoriaVariabileProduzione.RICETTA_IMPOSTATA_IN_LETTURA_CODICE == pmp.getOpcuaNode().getCategoriaVariabileProduzione()).map(ParametroMacchinaProduzione::getValore).findFirst().orElse(null));
+                produzioneGestionale.setCodiceRicettaImpostata(eventoProduzione.getParametriMacchinaProduzione().stream().filter(pmp -> CategoriaVariabileProduzione.RICETTA_IMPOSTATA_IN_LETTURA_CODICE == pmp.getCategoriaVariabileProduzione()).map(ParametroMacchinaProduzione::getValore).findFirst().orElse(null));
                 if (ordineDiProduzione != null) {
                     produzioneGestionale.setDataOrdineDiProduzione(ordineDiProduzione.getDataOrdineDiProduzione());
                     produzioneGestionale.setNumeroOrdineDiProduzione(ordineDiProduzione.getNumeroOrdineDiProduzione());
                     produzioneGestionale.setQuantita(ordineDiProduzione.getQuantitaDaRealizzare().intValue());
                     produzioneGestionale.setStatoLavorazione(ordineDiProduzione.getStatoOdl() != null && !ordineDiProduzione.getStatoOdl().isBlank() && ordineDiProduzione.getStatoOdl().equalsIgnoreCase("k") ? "T" : "L");
                 }
-                produzioneGestionale.setFunzionamentoCicloInAutomatico(eventoProduzione.getParametriMacchinaProduzione().stream().filter(pmp -> CategoriaVariabileProduzione.FUNZIONAMENTO_CICLO_AUTOMATICO == pmp.getOpcuaNode().getCategoriaVariabileProduzione()).map(pmp -> Boolean.valueOf(pmp.getValore()) ? 1 : 0).findFirst().orElse(null));
+                produzioneGestionale.setFunzionamentoCicloInAutomatico(eventoProduzione.getParametriMacchinaProduzione().stream().filter(pmp -> CategoriaVariabileProduzione.FUNZIONAMENTO_CICLO_AUTOMATICO == pmp.getCategoriaVariabileProduzione()).map(pmp -> Boolean.valueOf(pmp.getValore()) ? 1 : 0).findFirst().orElse(null));
                 produzioneGestionale.setOrarioProduzione(LocalTime.now());
                 produzioneGestionale.setDataProduzione(LocalDate.now());
                 produzioneGestionale.setPezziProdotti(quantitaProdotta);
-                produzioneGestionale.setPresenzaAllarme(eventoProduzione.getParametriMacchinaProduzione().stream().filter(pmp -> CategoriaVariabileProduzione.PRESENZA_ALLARME == pmp.getOpcuaNode().getCategoriaVariabileProduzione()).map(pmp -> Boolean.valueOf(pmp.getValore()) ? 1 : 0).findFirst().orElse(null));
+                produzioneGestionale.setPresenzaAllarme(eventoProduzione.getParametriMacchinaProduzione().stream().filter(pmp -> CategoriaVariabileProduzione.PRESENZA_ALLARME == pmp.getCategoriaVariabileProduzione()).map(pmp -> Boolean.valueOf(pmp.getValore()) ? 1 : 0).findFirst().orElse(null));
                 produzioneGestionaleService.save(produzioneGestionale);
                 // FINE codice per Gestionale interno aziendale
 

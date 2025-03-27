@@ -16,9 +16,11 @@
  */
 package com.mainardisoluzioni.scadaleva.business.produzione.entity;
 
+import com.mainardisoluzioni.scadaleva.business.comunicazione.control.CategoriaVariabileProduzione;
 import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.OpcuaNode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -40,8 +42,9 @@ public class ParametroMacchinaProduzione {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private @NotNull EventoProduzione eventoProduzione;
     
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private @NotNull OpcuaNode opcuaNode;
+    @Enumerated
+    @Column(nullable = false, columnDefinition = "smallint")
+    private @NotNull CategoriaVariabileProduzione categoriaVariabileProduzione;
     
     @Column(nullable = false)
     private @NotBlank String valore;
@@ -49,9 +52,9 @@ public class ParametroMacchinaProduzione {
     public ParametroMacchinaProduzione() {
     }
 
-    public ParametroMacchinaProduzione(OpcuaNode opcuaNode, String valore) {
+    public ParametroMacchinaProduzione(CategoriaVariabileProduzione categoriaVariabileProduzione, String valore) {
         this();
-        this.opcuaNode = opcuaNode;
+        this.categoriaVariabileProduzione = categoriaVariabileProduzione;
         this.valore = valore;
     }
 
@@ -71,12 +74,12 @@ public class ParametroMacchinaProduzione {
         this.eventoProduzione = eventoProduzione;
     }
 
-    public OpcuaNode getOpcuaNode() {
-        return opcuaNode;
+    public CategoriaVariabileProduzione getCategoriaVariabileProduzione() {
+        return categoriaVariabileProduzione;
     }
 
-    public void setOpcuaNode(OpcuaNode opcuaNode) {
-        this.opcuaNode = opcuaNode;
+    public void setCategoriaVariabileProduzione(CategoriaVariabileProduzione categoriaVariabileProduzione) {
+        this.categoriaVariabileProduzione = categoriaVariabileProduzione;
     }
 
     public String getValore() {

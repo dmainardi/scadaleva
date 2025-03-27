@@ -3,6 +3,7 @@
 readonly AS_LIBFOLDER=$HOME/payara6/glassfish/domains/domain1/lib
 readonly APP_NAME=scadaleva
 readonly DB_READ_ONLY_USER_PASSWORD_ALIAS_NAME=scadaleva-db-readyonly-user-alias
+readonly DB_ACCESS_READ_ONLY_FOLDER=$HOME/"${APP_NAME}"/fustellatrice
 
 ./asadmin delete-jdbc-resource jdbc/mysql_"${APP_NAME}"
 ./asadmin delete-jdbc-resource jdbc/mysql_readOnly_"${APP_NAME}"
@@ -14,5 +15,5 @@ readonly DB_READ_ONLY_USER_PASSWORD_ALIAS_NAME=scadaleva-db-readyonly-user-alias
 ./asadmin delete-jdbc-connection-pool access_readOnly_"${APP_NAME}"_archivioLavoro_pool
 ./asadmin delete-password-alias "${DB_READ_ONLY_USER_PASSWORD_ALIAS_NAME}"
 ls -p "${AS_LIBFOLDER}"/ | grep -v / | xargs -n1 ./asadmin remove-library
-sudo umount $HOME/"${APP_NAME}"/fustellatrice
+sudo umount "${DB_ACCESS_READ_ONLY_FOLDER}"
 rm -r $HOME/"${APP_NAME}"/

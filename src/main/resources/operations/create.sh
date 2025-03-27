@@ -20,7 +20,7 @@ readonly DB_ACCESS_READ_ONLY_FOLDER=$HOME/"${APP_NAME}"/fustellatrice
 mkdir $HOME/"${APP_NAME}"
 mkdir $HOME/"${APP_NAME}"/documents
 mkdir "${DB_ACCESS_READ_ONLY_FOLDER}"
-sudo mount -t cifs -o credentials="${IDE_WORKSPACE}"/"${APP_NAME}"/src/main/resources/operations/accessCredential,dir_mode=0755,file_mode=0755 //"${IP_ACCESS_READ_ONLY_ADDRESS}"/Archivio $HOME/"${APP_NAME}"/fustellatrice
+sudo mount -t cifs -o credentials="${IDE_WORKSPACE}"/"${APP_NAME}"/src/main/resources/operations/accessCredential,dir_mode=0755,file_mode=0755 //"${IP_ACCESS_READ_ONLY_ADDRESS}"/Archivio "${DB_ACCESS_READ_ONLY_FOLDER}"
 \
 mvn -f "${IDE_WORKSPACE}"/"${APP_NAME}"/pom.xml -DincludeScope=provided -DexcludeGroupIds=jakarta.activation,jakarta.annotation,jakarta.authentication,jakarta.authorization,jakarta.batch,jakarta.ejb,jakarta.el,jakarta.enterprise,jakarta.faces,jakarta.inject,jakarta.interceptor,jakarta.jms,jakarta.json,jakarta.json.bind,jakarta.mail,jakarta.persistence,jakarta.platform,jakarta.resource,jakarta.security.enterprise,jakarta.servlet,jakarta.transaction,jakarta.validation,jakarta.websocket,jakarta.ws.rs -DoutputDirectory=$HOME/"${APP_NAME}"/ dependency:copy-dependencies
 \

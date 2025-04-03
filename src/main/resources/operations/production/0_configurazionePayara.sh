@@ -56,7 +56,7 @@ AccessPath=/home/${AS_USER_NAME}/${APP_NAME}/${DB_ACCESS_READ_ONLY_FOLDER_NAME}/
 LoginTimeout=0 \
 access_readOnly_${APP_NAME}_archivioStorico_pool
 # Crea JDBC resource associata al primo databse di Access (ArchivioStorico)
-${AS_HOME}/bin/asadmin create-jdbc-resource --connectionpoolid access_readOnly_${APP_NAME}_archivioStorico_pool jdbc/access_readOnly_${APP_NAME}_archivioStorico_pool
+${AS_HOME}/bin/asadmin create-jdbc-resource --connectionpoolid access_readOnly_${APP_NAME}_archivioStorico_pool jdbc/access_readOnly_${APP_NAME}_archivioStorico
 # Crea JDBC connection pool associata al secondo databse di Access (archiviolavoro)
 ${AS_HOME}/bin/asadmin create-jdbc-connection-pool \
 --datasourceclassname=net.ucanaccess.jdbc.UcanaccessDataSource \
@@ -68,4 +68,4 @@ AccessPath=/home/${AS_USER_NAME}/${APP_NAME}/${DB_ACCESS_READ_ONLY_FOLDER_NAME}/
 LoginTimeout=0 \
 access_readOnly_${APP_NAME}_archivioLavoro_pool
 # Crea JDBC resource associata al secondo databse di Access (archiviolavoro)
-${AS_HOME}/bin/asadmin create-jdbc-resource --connectionpoolid access_readOnly_${APP_NAME}_archivioLavoro_pool jdbc/access_readOnly_${APP_NAME}_archivioLavoro_pool
+${AS_HOME}/bin/asadmin create-jdbc-resource --connectionpoolid access_readOnly_${APP_NAME}_archivioLavoro_pool jdbc/access_readOnly_${APP_NAME}_archivioLavoro

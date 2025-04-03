@@ -91,7 +91,7 @@ public class AccessController {
         }
     }
     
-    @Schedule(minute = "*/5", hour = "*", persistent = false)
+    @Schedule(minute = "*", hour = "*", persistent = false)
     public void controllaProduzioneFustellatrice() {
         if (macchine != null) {
             for (Macchina macchina : macchine) {

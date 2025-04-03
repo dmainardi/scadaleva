@@ -15,5 +15,5 @@ readonly DB_ACCESS_READ_ONLY_FOLDER=$HOME/"${APP_NAME}"/fustellatrice
 ./asadmin delete-jdbc-connection-pool access_readOnly_"${APP_NAME}"_archivioLavoro_pool
 ./asadmin delete-password-alias "${DB_READ_ONLY_USER_PASSWORD_ALIAS_NAME}"
 ls -p "${AS_LIBFOLDER}"/ | grep -v / | xargs -n1 ./asadmin remove-library
-sudo umount "${DB_ACCESS_READ_ONLY_FOLDER}"
+sudo umount -l "${DB_ACCESS_READ_ONLY_FOLDER}"
 rm -r $HOME/"${APP_NAME}"/

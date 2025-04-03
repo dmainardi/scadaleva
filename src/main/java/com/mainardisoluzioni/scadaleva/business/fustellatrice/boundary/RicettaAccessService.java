@@ -45,7 +45,7 @@ public class RicettaAccessService {
         Root<RicettaAccess> root = query.from(RicettaAccess.class);
         CriteriaQuery<RicettaAccess> select = query.select(root).distinct(true);
         query.where(cb.like(cb.lower(root.get(RicettaAccess_.codice)), codice.toLowerCase()));
-        
+
         TypedQuery<RicettaAccess> typedQuery = em.createQuery(select);
         try {
             return typedQuery.getSingleResult();

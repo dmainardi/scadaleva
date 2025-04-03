@@ -27,6 +27,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -44,20 +45,24 @@ public class EventoAccessService {
      * @return Una lista degli eventi Access in cui il campo 'colpi' non è nullo ed è maggiore di zero
      */
     public List<EventoAccess> list(LocalDateTime limiteInferioreCreazione) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<EventoAccess> query = cb.createQuery(EventoAccess.class);
-        Root<EventoAccess> root = query.from(EventoAccess.class);
-        CriteriaQuery<EventoAccess> select = query.select(root).distinct(true);
-        
-        List<Predicate> conditions = new ArrayList<>();        
-        conditions.add(cb.isNotNull(root.get(EventoAccess_.colpi)));
-        conditions.add(cb.greaterThan(root.get(EventoAccess_.colpi), 0));
-        if (limiteInferioreCreazione != null)
-            conditions.add(cb.greaterThan(root.get(EventoAccess_.creazione), limiteInferioreCreazione));
-        if (!conditions.isEmpty())
-            query.where(conditions.toArray(Predicate[]::new));
-        
-        return em.createQuery(select).getResultList();
+        try {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<EventoAccess> query = cb.createQuery(EventoAccess.class);
+            Root<EventoAccess> root = query.from(EventoAccess.class);
+            CriteriaQuery<EventoAccess> select = query.select(root).distinct(true);
+
+            List<Predicate> conditions = new ArrayList<>();        
+            conditions.add(cb.isNotNull(root.get(EventoAccess_.colpi)));
+            conditions.add(cb.greaterThan(root.get(EventoAccess_.colpi), 0));
+            if (limiteInferioreCreazione != null)
+                conditions.add(cb.greaterThan(root.get(EventoAccess_.creazione), limiteInferioreCreazione));
+            if (!conditions.isEmpty())
+                query.where(conditions.toArray(Predicate[]::new));
+
+            return em.createQuery(select).getResultList();
+        } catch (java.lang.IllegalStateException e) {
+            return Collections.emptyList();
+        }
     }
     
 }

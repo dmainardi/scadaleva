@@ -38,7 +38,7 @@ public class OrdineDiProduzioneService {
     EntityManager em;
     
     /**
-     * Restituisce l'ultimo ordine di produzione (il più recente) della macchina specificata
+     * Restituisce l'ultimo ordine di produzione (il più recente) in lavorazione della macchina specificata
      * @param codiceMacchina codice identificativo del macchinario
      * @return ordine di produzione più recente, opppure NULL se non ci sono ordini di produzione associati alla macchina
      */
@@ -49,7 +49,7 @@ public class OrdineDiProduzioneService {
         CriteriaQuery<OrdineDiProduzione> select = query.select(root).distinct(true);
         query.where(
                 cb.like(root.get(OrdineDiProduzione_.codiceMacchina), codiceMacchina),
-                cb.like(root.get(OrdineDiProduzione_.statoOdl), "L")
+                cb.like(cb.upper(root.get(OrdineDiProduzione_.statoOdl)), "L")
         );
         query.orderBy(cb.desc(root.get(OrdineDiProduzione_.dataOrdineDiProduzione)));
         TypedQuery<OrdineDiProduzione> typedQuery = em.createQuery(select);

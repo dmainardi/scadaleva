@@ -89,9 +89,10 @@ public class AccessController {
             if (lastTimestampProduzione != null)
                 ultimoTimestampProduzione.put(macchina, lastTimestampProduzione);
         }
+        controllaProduzioneFustellatrice();
     }
     
-    @Schedule(minute = "*", hour = "*", persistent = false)
+    @Schedule(hour = "12", dayOfWeek = "Tue", persistent = false)
     public void controllaProduzioneFustellatrice() {
         if (macchine != null) {
             for (Macchina macchina : macchine) {

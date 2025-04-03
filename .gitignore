@@ -4,3 +4,4 @@ target/
 /src/main/resources/operations/dbReadOnlyUserPassword
 /src/main/resources/operations/production/initial.gz
 /src/main/resources/operations/accessCredential
+/src/main/resources/operations/production/accessCredential

@@ -28,4 +28,5 @@ import java.time.LocalDate;
 public class OrdineDiProduzione_ {
     public static volatile SingularAttribute<OrdineDiProduzione, LocalDate> dataOrdineDiProduzione;
     public static volatile SingularAttribute<OrdineDiProduzione, String> codiceMacchina;
+    public static volatile SingularAttribute<OrdineDiProduzione, String> statoOdl;
 }

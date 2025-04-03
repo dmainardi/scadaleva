@@ -30,7 +30,7 @@ public class ProduzioneGestionaleController {
     
     public static ProduzioneGestionale createAndSave(
             @NotBlank String codiceMacchina,
-            @NotNull String codiceRicettaImpostata,
+            @NotBlank String codiceRicettaImpostata,
             OrdineDiProduzione ordineDiProduzione,
             @NotNull Integer funzionamentoCicloInAutomatico,
             @NotNull Integer presenzaAllarme,

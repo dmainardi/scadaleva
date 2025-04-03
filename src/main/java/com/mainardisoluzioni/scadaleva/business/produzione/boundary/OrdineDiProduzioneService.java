@@ -47,7 +47,10 @@ public class OrdineDiProduzioneService {
         CriteriaQuery<OrdineDiProduzione> query = cb.createQuery(OrdineDiProduzione.class);
         Root<OrdineDiProduzione> root = query.from(OrdineDiProduzione.class);
         CriteriaQuery<OrdineDiProduzione> select = query.select(root).distinct(true);
-        query.where(cb.like(root.get(OrdineDiProduzione_.codiceMacchina), codiceMacchina));
+        query.where(
+                cb.like(root.get(OrdineDiProduzione_.codiceMacchina), codiceMacchina),
+                cb.like(root.get(OrdineDiProduzione_.statoOdl), "L")
+        );
         query.orderBy(cb.desc(root.get(OrdineDiProduzione_.dataOrdineDiProduzione)));
         TypedQuery<OrdineDiProduzione> typedQuery = em.createQuery(select);
         typedQuery.setMaxResults(1);

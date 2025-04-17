@@ -2,7 +2,7 @@
 readonly IDE_WORKSPACE=$HOME/NetBeansProjects
 readonly AS_LIBFOLDER=$HOME/payara6/glassfish/domains/domain1/lib
 readonly APP_NAME=scadaleva
-readonly IP_ADDRESS=192.168.1.132
+readonly IP_ADDRESS=192.168.1.127
 readonly DB_NAME="${APP_NAME}"
 readonly DB_USER_NAME="${APP_NAME}"
 readonly DB_USER_PASSWORD=123Stella!!!

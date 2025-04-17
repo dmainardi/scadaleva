@@ -139,7 +139,7 @@ updateApplicationServer()
     ssh -p $(config_get SSH_PORT) root@$(config_get IP_ADDRESS) 'rm -rf '$(config_get AS_DIR)
 
     # Riavviare il server per liberare la RAM
-    ssh -p $(config_get SSH_PORT) root@$(config_get IP_ADDRESS) 'reboot & exit'
+    ssh -p $(config_get SSH_PORT) root@$(config_get IP_ADDRESS) 'reboot && exit'
 
     # Wait for server to start up and then continue - solution found on https://serverfault.com/a/995377
     RESULT=1 # 0 upon success
@@ -190,6 +190,7 @@ updateApplicationServer()
     scp -P $(config_get SSH_PORT) $(config_get IDE_WORKSPACE)/$(config_get APP_NAME)/target/libs-temp/* $(config_get AS_USER_NAME)@$(config_get IP_ADDRESS):
     ssh -p $(config_get SSH_PORT) $(config_get AS_USER_NAME)@$(config_get IP_ADDRESS) \
         AS_HOME=$(config_get AS_HOME) \
+        AS_USER_NAME=$(config_get AS_USER_NAME) \
         AS_DOMAIN_NAME=$(config_get AS_DOMAIN_NAME) \
         AS_PASSWORD_ALIAS_NAME=$(config_get AS_PASSWORD_ALIAS_NAME) \
         DB_USER_NAME=$(config_get DB_USER_NAME) \
@@ -200,6 +201,8 @@ updateApplicationServer()
         DB_READ_ONLY_NAME=$(config_get DB_READ_ONLY_NAME) \
         IP_READ_ONLY_ADDRESS=$(config_get IP_READ_ONLY_ADDRESS) \
         TCP_READ_ONLY_PORT=$(config_get TCP_READ_ONLY_PORT) \
+        DB_ACCESS_READ_ONLY_USER_NAME=$(config_get DB_ACCESS_READ_ONLY_USER_NAME) \
+        DB_ACCESS_READ_ONLY_FOLDER_NAME=$(config_get DB_ACCESS_READ_ONLY_FOLDER_NAME) \
         APP_NAME=$(config_get APP_NAME) \
         'bash -s' < 0_configurazionePayara.sh
 
@@ -232,7 +235,7 @@ updateApplicationServer()
         'bash -s' < 0_permessiFilePayara.sh
 
     # Riavviare il server
-    ssh -p $(config_get SSH_PORT) root@$(config_get IP_ADDRESS) 'reboot & exit'
+    ssh -p $(config_get SSH_PORT) root@$(config_get IP_ADDRESS) 'reboot && exit'
 }
 
 prompt_confirm() {

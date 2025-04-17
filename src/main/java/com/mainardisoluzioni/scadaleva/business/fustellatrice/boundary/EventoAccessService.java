@@ -17,19 +17,19 @@
 package com.mainardisoluzioni.scadaleva.business.fustellatrice.boundary;
 
 import com.mainardisoluzioni.scadaleva.business.fustellatrice.entity.EventoAccess;
-import jakarta.annotation.Resource;
+import com.mainardisoluzioni.scadaleva.business.fustellatrice.entity.EventoAccess_;
 import jakarta.ejb.Stateless;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import javax.sql.DataSource;
+
 
 /**
  *
@@ -37,12 +37,17 @@ import javax.sql.DataSource;
  */
 @Stateless
 public class EventoAccessService {
-    @Resource(lookup="jdbc/access_readOnly_scadaleva_archivioStorico")
-    DataSource dataSource;
+    /*@Resource(lookup="jdbc/access_readOnly_scadaleva_archivioStorico")
+    DataSource dataSource;*/
     
-    /*@PersistenceContext(unitName = "scadaleva_access_readOnly_archivioStorico_PU")
+    @PersistenceContext(unitName = "scadaleva_access_readOnly_archivioStorico_PU")
     EntityManager em;
     
+    /**
+     * Elenco degli eventi di Access
+     * @param limiteInferioreCreazione se presente applica un filtro in modo che vengano restituiti tutti gli eventi la cui data di produzione è successiva (maggiore) a quanto indicato
+     * @return Una lista degli eventi Access in cui il campo 'colpi' non è nullo ed è maggiore di zero
+     */
     public List<EventoAccess> list(LocalDateTime limiteInferioreCreazione) {
         try {
             CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -62,13 +67,9 @@ public class EventoAccessService {
         } catch (java.lang.IllegalStateException e) {
             return Collections.emptyList();
         }
-    }*/
+    }
     
-    /**
-     * Elenco degli eventi di Access
-     * @param limiteInferioreCreazione se presente applica un filtro in modo che vengano restituiti tutti gli eventi la cui data di produzione è successiva (maggiore) a quanto indicato
-     * @return Una lista degli eventi Access in cui il campo 'colpi' non è nullo ed è maggiore di zero
-     */
+    /*
     public List<EventoAccess> list(LocalDateTime limiteInferioreCreazione) {
         List<EventoAccess> result = new ArrayList<>();
         try {
@@ -152,8 +153,8 @@ public class EventoAccessService {
         } catch (SQLException e) {
             // niente da fare
         }*/
-        
+        /*
         return result;
     }
-    
+    */
 }

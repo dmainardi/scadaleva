@@ -17,17 +17,19 @@
 package com.mainardisoluzioni.scadaleva.business.fustellatrice.boundary;
 
 import com.mainardisoluzioni.scadaleva.business.fustellatrice.entity.RicettaAccess;
-import jakarta.annotation.Resource;
+import com.mainardisoluzioni.scadaleva.business.fustellatrice.entity.RicettaAccess_;
 import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.NonUniqueResultException;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
-import javax.sql.DataSource;
+
 
 /**
  *
@@ -35,10 +37,10 @@ import javax.sql.DataSource;
  */
 @Stateless
 public class RicettaAccessService {
-    @Resource(lookup="jdbc/access_readOnly_scadaleva_archivioLavoro")
-    DataSource dataSource;
+    /*@Resource(lookup="jdbc/access_readOnly_scadaleva_archivioLavoro")
+    DataSource dataSource;*/
     
-    /*@PersistenceContext(unitName = "scadaleva_access_readOnly_archivioLavoro_PU")
+    @PersistenceContext(unitName = "scadaleva_access_readOnly_archivioLavoro_PU")
     EntityManager em;
     
     public RicettaAccess find(@NotBlank String codice) {
@@ -65,8 +67,9 @@ public class RicettaAccessService {
         CriteriaQuery<RicettaAccess> select = query.select(root).distinct(true);
         
         return em.createQuery(select).getResultList();
-    }*/
+    }
     
+    /*
     public RicettaAccess find(@NotBlank String codice) {
         RicettaAccess result = null;
         try {
@@ -121,5 +124,5 @@ public class RicettaAccessService {
         result.setTipo(rs.getInt("tipo"));
         
         return result;
-    }
+    }*/
 }

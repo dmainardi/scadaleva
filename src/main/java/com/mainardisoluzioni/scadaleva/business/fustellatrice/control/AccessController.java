@@ -33,9 +33,7 @@ import com.mainardisoluzioni.scadaleva.business.produzione.entity.OrdineDiProduz
 import com.mainardisoluzioni.scadaleva.business.produzione.entity.ParametroMacchinaProduzione;
 import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
 import jakarta.annotation.PostConstruct;
-import jakarta.ejb.Schedule;
 import jakarta.ejb.Singleton;
-import jakarta.ejb.Startup;
 import jakarta.inject.Inject;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -50,7 +48,7 @@ import java.util.stream.Collectors;
  *
  * @author maina
  */
-@Startup
+//@Startup
 @Singleton
 public class AccessController {
     
@@ -92,7 +90,7 @@ public class AccessController {
         controllaProduzioneFustellatrice();
     }
     
-    @Schedule(hour = "12", dayOfWeek = "Tue", persistent = false)
+    //@Schedule(hour = "12", dayOfWeek = "Tue", persistent = false)
     public void controllaProduzioneFustellatrice() {
         if (macchine != null) {
             for (Macchina macchina : macchine) {

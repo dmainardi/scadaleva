@@ -51,4 +51,18 @@ public class EventoEnergiaService {
             System.err.println("Errore: " + e.getLocalizedMessage());
         }
     }
+    
+    public void createAndSave(@NotNull Macchina macchina, @NotNull BigDecimal consumoWh, BigDecimal potenzaIstantanea) {
+        try {
+            EventoEnergia evento = new EventoEnergia();
+            evento.setMacchina(macchina);
+            evento.setConsumo(consumoWh);
+            evento.setPotenzaIstantanea(potenzaIstantanea);
+            evento.setDataOra(LocalDateTime.now(ZoneId.of("UTC")));
+            
+            em.persist(evento);
+        } catch (NumberFormatException | DateTimeException e) {
+            System.err.println("Errore: " + e.getLocalizedMessage());
+        }
+    }
 }

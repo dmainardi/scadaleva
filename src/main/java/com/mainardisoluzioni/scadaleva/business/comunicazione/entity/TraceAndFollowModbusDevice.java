@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 adminavvimpa
+ * Copyright (C) 2025 maina
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.mainardisoluzioni.scadaleva.business.energia.entity;
+package com.mainardisoluzioni.scadaleva.business.comunicazione.entity;
 
 import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
 import jakarta.persistence.Column;
@@ -22,43 +22,36 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.DecimalMin;
+import jakarta.persistence.OneToOne;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 /**
  *
- * @author adminavvimpa
+ * @author maina
  */
 @Entity
-public class EventoEnergia {
+public class TraceAndFollowModbusDevice {
+    
+    public static final int INDIRIZZO_REGISTRO_POTENZA_ISTANTANEA = 38;
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne(optional = false)
+    @OneToOne(optional = false)
     private @NotNull Macchina macchina;
     
-    @Column(nullable = false, columnDefinition = "timestamp")
-    private @NotNull LocalDateTime dataOra;
+    @Column(nullable = false)
+    private @NotBlank String ipAddress;
     
-    /**
-     * Energia attiva consumata nell’arco di tempo di un pacchetto in Wh
-     */
-    @Column(nullable = false, scale = 10, precision = 15)
-    @DecimalMin("0")
-    private @NotNull BigDecimal consumo;
+    @Column(nullable = false)
+    private @NotNull Integer tcpPort;
     
-    /**
-     * Potenza istantanea, espressa in W
-     */
-    @Column(scale = 10, precision = 15)
-    @DecimalMin("0")
-    private BigDecimal potenzaIstantanea;
+    @Column(nullable = false)
+    private @NotNull Integer modbusUnitId;
 
-    public EventoEnergia() {
+    public TraceAndFollowModbusDevice() {
     }
 
     public Long getId() {
@@ -77,28 +70,28 @@ public class EventoEnergia {
         this.macchina = macchina;
     }
 
-    public LocalDateTime getDataOra() {
-        return dataOra;
+    public String getIpAddress() {
+        return ipAddress;
     }
 
-    public void setDataOra(LocalDateTime dataOra) {
-        this.dataOra = dataOra;
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
     }
 
-    public BigDecimal getConsumo() {
-        return consumo;
+    public Integer getTcpPort() {
+        return tcpPort;
     }
 
-    public void setConsumo(BigDecimal consumo) {
-        this.consumo = consumo;
+    public void setTcpPort(Integer tcpPort) {
+        this.tcpPort = tcpPort;
     }
 
-    public BigDecimal getPotenzaIstantanea() {
-        return potenzaIstantanea;
+    public Integer getModbusUnitId() {
+        return modbusUnitId;
     }
 
-    public void setPotenzaIstantanea(BigDecimal potenzaIstantanea) {
-        this.potenzaIstantanea = potenzaIstantanea;
+    public void setModbusUnitId(Integer modbusUnitId) {
+        this.modbusUnitId = modbusUnitId;
     }
     
 }

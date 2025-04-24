@@ -87,7 +87,7 @@ updateLibraries()
         AS_DOMAIN_NAME=$(config_get AS_DOMAIN_NAME) \
         'bash -s' < 0_undeployApp.sh
 
-    mvn -f $(config_get IDE_WORKSPACE)/$(config_get APP_NAME)/pom.xml -DincludeScope=provided -DexcludeArtifactIds=javax.mail,jakarta.jakartaee-api,activation -DoutputDirectory=$(config_get IDE_WORKSPACE)/$(config_get APP_NAME)/target/libs-temp/ dependency:copy-dependencies
+    mvn -f $(config_get IDE_WORKSPACE)/$(config_get APP_NAME)/pom.xml -DincludeScope=provided -DexcludeGroupIds=jakarta.activation,jakarta.annotation,jakarta.authentication,jakarta.authorization,jakarta.batch,jakarta.ejb,jakarta.el,jakarta.enterprise,jakarta.faces,jakarta.inject,jakarta.interceptor,jakarta.jms,jakarta.json,jakarta.json.bind,jakarta.mail,jakarta.persistence,jakarta.platform,jakarta.resource,jakarta.security.enterprise,jakarta.servlet,jakarta.transaction,jakarta.validation,jakarta.websocket,jakarta.ws.rs -DoutputDirectory=$(config_get IDE_WORKSPACE)/$(config_get APP_NAME)/target/libs-temp/ dependency:copy-dependencies
     scp -P $(config_get SSH_PORT) $(config_get IDE_WORKSPACE)/$(config_get APP_NAME)/target/libs-temp/* $(config_get AS_USER_NAME)@$(config_get IP_ADDRESS):
 
     # Rimuovere le vecchie librerie
@@ -186,7 +186,7 @@ updateApplicationServer()
     # Configurare Payara
     scp -P $(config_get SSH_PORT) $(config_get IDE_WORKSPACE)/Payara/appserver/admin/production_domain_template/target/production-domain.jar $(config_get AS_USER_NAME)@$(config_get IP_ADDRESS):$(config_get AS_HOME)/glassfish/common/templates/gf/
     scp -P $(config_get SSH_PORT) *Password $(config_get AS_USER_NAME)@$(config_get IP_ADDRESS):
-    mvn -f $(config_get IDE_WORKSPACE)/$(config_get APP_NAME)/pom.xml -DincludeScope=provided -DexcludeArtifactIds=javax.mail,jakarta.jakartaee-api,activation -DoutputDirectory=$(config_get IDE_WORKSPACE)/$(config_get APP_NAME)/target/libs-temp/ dependency:copy-dependencies
+    mvn -f $(config_get IDE_WORKSPACE)/$(config_get APP_NAME)/pom.xml -DincludeScope=provided -DexcludeGroupIds=jakarta.activation,jakarta.annotation,jakarta.authentication,jakarta.authorization,jakarta.batch,jakarta.ejb,jakarta.el,jakarta.enterprise,jakarta.faces,jakarta.inject,jakarta.interceptor,jakarta.jms,jakarta.json,jakarta.json.bind,jakarta.mail,jakarta.persistence,jakarta.platform,jakarta.resource,jakarta.security.enterprise,jakarta.servlet,jakarta.transaction,jakarta.validation,jakarta.websocket,jakarta.ws.rs -DoutputDirectory=$(config_get IDE_WORKSPACE)/$(config_get APP_NAME)/target/libs-temp/ dependency:copy-dependencies
     scp -P $(config_get SSH_PORT) $(config_get IDE_WORKSPACE)/$(config_get APP_NAME)/target/libs-temp/* $(config_get AS_USER_NAME)@$(config_get IP_ADDRESS):
     ssh -p $(config_get SSH_PORT) $(config_get AS_USER_NAME)@$(config_get IP_ADDRESS) \
         AS_HOME=$(config_get AS_HOME) \

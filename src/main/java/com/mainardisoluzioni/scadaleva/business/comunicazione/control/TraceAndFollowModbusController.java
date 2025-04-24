@@ -16,18 +16,16 @@
  */
 package com.mainardisoluzioni.scadaleva.business.comunicazione.control;
 
-import com.digitalpetri.modbus.client.ModbusTcpClient;
-import com.digitalpetri.modbus.exceptions.ModbusExecutionException;
-import com.digitalpetri.modbus.exceptions.ModbusResponseException;
-import com.digitalpetri.modbus.exceptions.ModbusTimeoutException;
-import com.digitalpetri.modbus.pdu.ReadInputRegistersRequest;
-import com.digitalpetri.modbus.pdu.ReadInputRegistersResponse;
-import com.digitalpetri.modbus.tcp.client.NettyTcpClientTransport;
+import com.intelligt.modbus.jlibmodbus.exception.ModbusIOException;
+import com.intelligt.modbus.jlibmodbus.exception.ModbusNumberException;
+import com.intelligt.modbus.jlibmodbus.exception.ModbusProtocolException;
+import com.intelligt.modbus.jlibmodbus.master.ModbusMaster;
+import com.intelligt.modbus.jlibmodbus.master.ModbusMasterFactory;
+import com.intelligt.modbus.jlibmodbus.tcp.TcpParameters;
 import com.mainardisoluzioni.scadaleva.business.comunicazione.boundary.TraceAndFollowModbusService;
 import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.TraceAndFollowModbusDevice;
 import com.mainardisoluzioni.scadaleva.business.energia.boundary.EventoEnergiaService;
 import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
-import io.netty.channel.ConnectTimeoutException;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.ejb.Schedule;
@@ -37,11 +35,14 @@ import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.net.ConnectException;
+import java.net.InetAddress;
+import java.net.NoRouteToHostException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -57,7 +58,7 @@ public class TraceAndFollowModbusController {
     EventoEnergiaService eventoEnergiaService;
     
     
-    private Map<ModbusTcpClient, TraceAndFollowModbusDevice> clients;
+    private Map<ModbusMaster, TraceAndFollowModbusDevice> clients;
     private Map<Macchina, BigDecimal> lastPotenzaIstantanea;   // ultimo valore della potenza istantanea
     
     @PostConstruct
@@ -76,18 +77,20 @@ public class TraceAndFollowModbusController {
     private void createAndConnectToClients(@NotNull List<TraceAndFollowModbusDevice> traceAndFollowModbusDevices) {
         for (TraceAndFollowModbusDevice traceAndFollowModbusDevice : traceAndFollowModbusDevices) {
             try {
-                NettyTcpClientTransport transport = NettyTcpClientTransport.create(cfg -> {
-                    cfg.hostname = traceAndFollowModbusDevice.getIpAddress();
-                    cfg.port = traceAndFollowModbusDevice.getTcpPort();
-                });
-                
-                ModbusTcpClient client = ModbusTcpClient.create(transport);
+                TcpParameters tcpParameters = new TcpParameters();
+                tcpParameters.setHost(InetAddress.getByName(traceAndFollowModbusDevice.getIpAddress()));
+                tcpParameters.setKeepAlive(true);
+                tcpParameters.setPort(traceAndFollowModbusDevice.getTcpPort());
+                tcpParameters.setConnectionTimeout(5000);   // cinque secondi di timeout
+
+                ModbusMaster client = ModbusMasterFactory.createModbusMasterTCP(tcpParameters);
+                client.setResponseTimeout(1000);            // un secondo di timeout sulla risposta
                 
                 client.connect();
                 listen(traceAndFollowModbusDevice, client);
                 clients.put(client, traceAndFollowModbusDevice);
-            } catch (NumberFormatException | ModbusExecutionException | ModbusResponseException | ModbusTimeoutException ex) {
-                if (!getCause(ex).getClass().equals(ConnectTimeoutException.class)) // evita di 'sporcare' i log con ConnectTimeoutException quando le macchine sono spente
+            } catch (NumberFormatException | UnknownHostException | ModbusIOException | ModbusProtocolException | ModbusNumberException ex) {
+                if (!getCause(ex).getClass().equals(ConnectException.class) && !getCause(ex).getClass().equals(NoRouteToHostException.class) && !getCause(ex).getClass().equals(SocketTimeoutException.class)) // evita di 'sporcare' i log con ConnectTimeoutException quando le macchine sono spente
                     System.err.println("TraceAndFollowModbusController:init - Errore: " + ex.getLocalizedMessage());
             }
         }
@@ -104,20 +107,21 @@ public class TraceAndFollowModbusController {
         return result;
     }
     
-    private BigDecimal convertRegisterValueFromUnsignedValue(@NotEmpty byte[] readInputRegisters) {
+    private BigDecimal convertRegisterValueFromUnsignedValue(@NotEmpty int[] readInputRegisters) {
         BigDecimal result = BigDecimal.ZERO;
         if (readInputRegisters.length == 1)
             result = new BigDecimal(Integer.parseInt(Integer.toBinaryString(readInputRegisters[0]), 2));
         return result;
     }
     
-    private void listen(@NotNull TraceAndFollowModbusDevice traceAndFollowModbusDevice, @NotNull ModbusTcpClient client) throws ModbusExecutionException, ModbusResponseException, ModbusTimeoutException {
-        ReadInputRegistersResponse inputRegistersResponse = client.readInputRegisters(
-                traceAndFollowModbusDevice.getModbusUnitId(),
-                new ReadInputRegistersRequest(TraceAndFollowModbusDevice.INDIRIZZO_REGISTRO_POTENZA_ISTANTANEA, 1)
+    private void listen(@NotNull TraceAndFollowModbusDevice traceAndFollowModbusDevice, @NotNull ModbusMaster client) throws ModbusProtocolException, ModbusNumberException, ModbusIOException {
+        
+        int[] readInputRegisters = client.readInputRegisters(traceAndFollowModbusDevice.getModbusUnitId(),
+                TraceAndFollowModbusDevice.INDIRIZZO_REGISTRO_POTENZA_ISTANTANEA,
+                1
         );
         
-        BigDecimal potenzaIstantanea = convertRegisterValueFromUnsignedValue(inputRegistersResponse.registers());
+        BigDecimal potenzaIstantanea = convertRegisterValueFromUnsignedValue(readInputRegisters);
 
         try {
             lastPotenzaIstantanea.put(
@@ -130,13 +134,14 @@ public class TraceAndFollowModbusController {
         }
     }
     
-    @Schedule(second = "*/10", minute = "*", hour = "*", persistent = false)
+    @Schedule(second = "*/1", minute = "*", hour = "*", persistent = false)
     public void leggiRegistro() {
-        for (Map.Entry<ModbusTcpClient, TraceAndFollowModbusDevice> entry : clients.entrySet()) {
+        for (Map.Entry<ModbusMaster, TraceAndFollowModbusDevice> entry : clients.entrySet()) {
             try {
                 listen(entry.getValue(), entry.getKey());
-            } catch (ModbusExecutionException | ModbusResponseException | ModbusTimeoutException ex) {
-                System.err.println("TraceAndFollowModbusController:leggiRegistro - Errore: " + ex.getLocalizedMessage());
+            } catch (ModbusProtocolException | ModbusNumberException | ModbusIOException ex) {
+                if (!getCause(ex).getClass().equals(ConnectException.class) && !getCause(ex).getClass().equals(NoRouteToHostException.class) && !getCause(ex).getClass().equals(SocketTimeoutException.class)) // evita di 'sporcare' i log con ConnectTimeoutException quando le macchine sono spente
+                    System.err.println("TraceAndFollowModbusController:leggiRegistro - Errore: " + ex.getLocalizedMessage());
             }
         }
     }
@@ -155,11 +160,11 @@ public class TraceAndFollowModbusController {
     @PreDestroy
     public void destroy() {
         if (clients != null)
-            for (ModbusTcpClient client : clients.keySet()) {
+            for (ModbusMaster client : clients.keySet()) {
                 if (client != null)
                     try {
                         client.disconnect();
-                    } catch (ModbusExecutionException ex) {
+                    } catch (ModbusIOException ex) {
                         System.err.println("TraceAndFollowModbusController:destroy - Errore: " + ex.getLocalizedMessage());
                     }
             }

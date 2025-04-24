@@ -74,7 +74,7 @@ public class AccessController {
     @Inject
     ProduzioneGestionaleService produzioneGestionaleService;
     
-    @PostConstruct
+    //@PostConstruct
     public void init() {
         macchine = new ArrayList<>();
         List<AccessDevice> accessDevices = accessDeviceService.list();

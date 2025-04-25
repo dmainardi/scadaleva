@@ -48,7 +48,7 @@ public class EventoEnergiaService {
             em.persist(evento);
             System.out.println("Evento energia scritto sul database");
         } catch (NumberFormatException | DateTimeException e) {
-            System.err.println("Errore: " + e.getLocalizedMessage());
+            System.err.println("EventoEnergiaService::createAndSave: " + e.getLocalizedMessage());
         }
     }
     
@@ -62,7 +62,20 @@ public class EventoEnergiaService {
             
             em.persist(evento);
         } catch (NumberFormatException | DateTimeException e) {
-            System.err.println("Errore: " + e.getLocalizedMessage());
+            System.err.println("EventoEnergiaService::createAndSave: " + e.getLocalizedMessage());
         }
+    }
+    
+    public static EventoEnergia create(@NotNull Macchina macchina, BigDecimal potenzaIstantanea) {
+        EventoEnergia evento = new EventoEnergia();
+        evento.setMacchina(macchina);
+        evento.setPotenzaIstantanea(potenzaIstantanea);
+        evento.setDataOra(LocalDateTime.now(ZoneId.of("UTC")));
+        
+        return evento;
+    }
+    
+    public void save(@NotNull EventoEnergia eventoEnergia) {
+        em.persist(eventoEnergia);
     }
 }

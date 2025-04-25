@@ -25,7 +25,7 @@ import com.intelligt.modbus.jlibmodbus.tcp.TcpParameters;
 import com.mainardisoluzioni.scadaleva.business.comunicazione.boundary.TraceAndFollowModbusService;
 import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.TraceAndFollowModbusDevice;
 import com.mainardisoluzioni.scadaleva.business.energia.boundary.EventoEnergiaService;
-import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
+import com.mainardisoluzioni.scadaleva.business.energia.entity.EventoEnergia;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.ejb.Schedule;
@@ -59,7 +59,11 @@ public class TraceAndFollowModbusController {
     
     
     private Map<ModbusMaster, TraceAndFollowModbusDevice> clients;
-    private Map<Macchina, BigDecimal> lastPotenzaIstantanea;   // ultimo valore della potenza istantanea
+    private Map<TraceAndFollowModbusDevice, EventoEnergia> ultimiEventiEnergia;     // ancora da salvare sul database
+    private Map<TraceAndFollowModbusDevice, EventoEnergia> penultimiEventiEnergia;  // ancora da salvare sul database
+    
+    private final BigDecimal PERCENTUALE = new BigDecimal(0.05);
+    private final BigDecimal SOGLIA = new BigDecimal(2500);
     
     @PostConstruct
     public void init() {
@@ -68,7 +72,8 @@ public class TraceAndFollowModbusController {
     
     private void createAndConnectToClientsFromDatabase() {
         clients = new HashMap<>();
-        lastPotenzaIstantanea = new HashMap<>();
+        ultimiEventiEnergia = new HashMap<>();
+        penultimiEventiEnergia = new HashMap<>();
         List<TraceAndFollowModbusDevice> traceAndFollowModbusDevices = traceAndFollowModbusService.list();
         if (traceAndFollowModbusDevices != null)
             createAndConnectToClients(traceAndFollowModbusDevices);
@@ -124,13 +129,40 @@ public class TraceAndFollowModbusController {
         BigDecimal potenzaIstantanea = convertRegisterValueFromUnsignedValue(readInputRegisters);
 
         try {
-            lastPotenzaIstantanea.put(
-                    traceAndFollowModbusDevice.getMacchina(),
-                    potenzaIstantanea
-            );
-            eventoEnergiaService.createAndSave(traceAndFollowModbusDevice.getMacchina(), BigDecimal.ZERO, potenzaIstantanea);
+            controllaSeSalvareEventoEnergia(traceAndFollowModbusDevice, potenzaIstantanea);
         } catch (NumberFormatException e) {
             System.err.println("TraceAndFollowModbusController:listen - Errore: " + e.getLocalizedMessage());
+        }
+    }
+    
+    private void controllaSeSalvareEventoEnergia(@NotNull TraceAndFollowModbusDevice traceAndFollowModbusDevice, @NotNull BigDecimal potenzaIstantanea) {
+        boolean datoSalvato = false;
+        EventoEnergia penultimoEventoEnergia = penultimiEventiEnergia.get(traceAndFollowModbusDevice);
+        EventoEnergia ultimoEventoEnergia = ultimiEventiEnergia.get(traceAndFollowModbusDevice);
+        if (penultimoEventoEnergia == null) {
+            penultimiEventiEnergia.put(traceAndFollowModbusDevice, EventoEnergiaService.create(traceAndFollowModbusDevice.getMacchina(), potenzaIstantanea));
+            datoSalvato = true;
+        }
+        if (!datoSalvato && ultimoEventoEnergia == null) {
+            ultimiEventiEnergia.put(traceAndFollowModbusDevice, EventoEnergiaService.create(traceAndFollowModbusDevice.getMacchina(), potenzaIstantanea));
+            datoSalvato = true;
+        }
+        if (!datoSalvato && ultimoEventoEnergia != null && ultimoEventoEnergia.getPotenzaIstantanea() != null) {
+            if (
+                    potenzaIstantanea.compareTo(SOGLIA) <= 0
+                    &&
+                    potenzaIstantanea.compareTo(ultimoEventoEnergia.getPotenzaIstantanea().multiply(BigDecimal.ONE.subtract(PERCENTUALE))) >= 0
+                    &&
+                    potenzaIstantanea.compareTo(ultimoEventoEnergia.getPotenzaIstantanea().multiply(BigDecimal.ONE.add(PERCENTUALE))) <= 0
+                    )
+                ultimiEventiEnergia.put(traceAndFollowModbusDevice, EventoEnergiaService.create(traceAndFollowModbusDevice.getMacchina(), potenzaIstantanea));
+            else {
+                if (penultimoEventoEnergia != null)
+                    eventoEnergiaService.save(penultimoEventoEnergia);
+                eventoEnergiaService.save(ultimoEventoEnergia);
+                penultimiEventiEnergia.put(traceAndFollowModbusDevice, EventoEnergiaService.create(traceAndFollowModbusDevice.getMacchina(), potenzaIstantanea));
+                ultimiEventiEnergia.remove(traceAndFollowModbusDevice);
+            }
         }
     }
     

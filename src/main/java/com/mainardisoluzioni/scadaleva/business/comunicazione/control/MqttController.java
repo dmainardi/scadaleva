@@ -33,10 +33,14 @@ import jakarta.inject.Inject;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbException;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -45,6 +49,8 @@ import java.util.UUID;
 @Startup
 @Singleton
 public class MqttController {
+    private static final Logger LOGGER = Logger.getLogger(MqttController.class.getName());
+    
     private final String BROKER_IP_ADDRESS = "192.168.220.125";
     
     private Mqtt5AsyncClient client;
@@ -93,12 +99,18 @@ public class MqttController {
         try {
             Jsonb jsonb = JsonbBuilder.create();
             PayloadTelemetryTraceAndFollow payloadTaF = jsonb.fromJson(payload, PayloadTelemetryTraceAndFollow.class);
-            System.out.println("macchina: " + macchina.getCodice());
-            System.out.println("ts: " + payloadTaF.getTimestamp());
-            System.out.println("consumo: " + payloadTaF.getContenuto().getConsumoWh());
+            LOGGER.log(
+                    Level.INFO,
+                    "MqttController::estraiDati - macchina: {0}, ts: {1}, consumo: {2}",
+                    new Object[]{
+                        macchina.getCodice(),
+                        payloadTaF.getTimestamp(),
+                        DecimalFormat.getNumberInstance(Locale.ITALY).format(payloadTaF.getContenuto().getConsumoWh())
+                    }
+            );
             eventoEnergiaService.createAndSave(macchina, payloadTaF.getTimestamp(), payloadTaF.getContenuto().getConsumoWh());
         } catch (JsonbException e) {
-            System.err.println(e.getLocalizedMessage());
+            LOGGER.log(Level.WARNING, "MqttController:estraiDati - Errore: {0}", new Object[]{e.getLocalizedMessage()});
         }
     }
     
@@ -107,7 +119,7 @@ public class MqttController {
         if (!mqtt5SubAcks.isEmpty()) {
             for (String topic : mqtt5SubAcks.values())
                 client.unsubscribeWith().topicFilter(topic).send();
-            System.out.println("Mi sono tolto dalla sottoscrizione");
+            LOGGER.log(Level.INFO, "MqttController::destroy - mi sono tolto dalla sottoscrizione");
         }
         client.disconnect()
                 .thenAccept(v -> System.out.println("Client disconnected"));

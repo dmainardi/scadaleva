@@ -102,7 +102,7 @@ public class TraceAndFollowModbusController {
                 clients.put(client, traceAndFollowModbusDevice);
             } catch (NumberFormatException | UnknownHostException | ModbusIOException | ModbusProtocolException | ModbusNumberException ex) {
                 if (!getCause(ex).getClass().equals(ConnectException.class) && !getCause(ex).getClass().equals(NoRouteToHostException.class) && !getCause(ex).getClass().equals(SocketTimeoutException.class)) // evita di 'sporcare' i log con ConnectTimeoutException quando le macchine sono spente
-                    System.err.println("TraceAndFollowModbusController:init - Errore: " + ex.getLocalizedMessage());
+                    LOGGER.log(Level.WARNING, "TraceAndFollowModbusController:init - Errore: {0}", new Object[]{ex.getLocalizedMessage()});
             }
         }
     }
@@ -137,7 +137,7 @@ public class TraceAndFollowModbusController {
         try {
             controllaSeSalvareEventoEnergia(traceAndFollowModbusDevice, potenzaIstantanea);
         } catch (NumberFormatException e) {
-            System.err.println("TraceAndFollowModbusController:listen - Errore: " + e.getLocalizedMessage());
+            LOGGER.log(Level.WARNING, "TraceAndFollowModbusController:listen - Errore: {0}", new Object[]{e.getLocalizedMessage()});
         }
     }
     
@@ -185,14 +185,14 @@ public class TraceAndFollowModbusController {
                 listen(entry.getValue(), entry.getKey());
             } catch (ModbusProtocolException | ModbusNumberException | ModbusIOException ex) {
                 if (!getCause(ex).getClass().equals(ConnectException.class) && !getCause(ex).getClass().equals(NoRouteToHostException.class) && !getCause(ex).getClass().equals(SocketTimeoutException.class)) // evita di 'sporcare' i log con ConnectTimeoutException quando le macchine sono spente
-                    System.err.println("TraceAndFollowModbusController:leggiRegistro - Errore: " + ex.getLocalizedMessage());
+                    LOGGER.log(Level.WARNING, "TraceAndFollowModbusController:leggiRegistro - Errore: {0}", new Object[]{ex.getLocalizedMessage()});
             }
         }
     }
     
     @Schedule(minute = "*/5", hour = "*", persistent = false)
     protected void checkTraceAndFollowModbusDevicesLiveness() {
-        //System.out.println("Adesso provo a vedere se la macchina precedentemente spenta si è accesa");
+        LOGGER.log(Level.FINE, "TraceAndFollowModbusController:checkTraceAndFollowModbusDevicesLiveness - Adesso provo a vedere se la macchina precedentemente spenta si è accesa");
         
         List<TraceAndFollowModbusDevice> traceAndFollowModbusDevices = traceAndFollowModbusService.list();
         if (traceAndFollowModbusDevices != null) {
@@ -209,7 +209,7 @@ public class TraceAndFollowModbusController {
                     try {
                         client.disconnect();
                     } catch (ModbusIOException ex) {
-                        System.err.println("TraceAndFollowModbusController:destroy - Errore: " + ex.getLocalizedMessage());
+                        LOGGER.log(Level.WARNING, "TraceAndFollowModbusController:destroy - Errore: {0}", new Object[]{ex.getLocalizedMessage()});
                     }
             }
     }

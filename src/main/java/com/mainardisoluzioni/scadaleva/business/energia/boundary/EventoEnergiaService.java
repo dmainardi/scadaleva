@@ -28,6 +28,8 @@ import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -35,6 +37,8 @@ import java.time.ZoneId;
  */
 @Stateless
 public class EventoEnergiaService {
+    private static final Logger LOGGER = Logger.getLogger(EventoEnergiaService.class.getName());
+    
     @PersistenceContext(unitName = "scadaleva_PU")
     EntityManager em;
     
@@ -46,9 +50,9 @@ public class EventoEnergiaService {
             evento.setDataOra(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(timestamp)), ZoneId.of("UTC")));
             
             em.persist(evento);
-            System.out.println("Evento energia scritto sul database");
+            LOGGER.log(Level.FINE, "EventoEnergiaService::createAndSave - Evento energia scritto sul database");
         } catch (NumberFormatException | DateTimeException e) {
-            System.err.println("EventoEnergiaService::createAndSave: " + e.getLocalizedMessage());
+            LOGGER.log(Level.WARNING, "EventoEnergiaService:createAndSave - Errore: {0}", new Object[]{e.getLocalizedMessage()});
         }
     }
     
@@ -62,7 +66,7 @@ public class EventoEnergiaService {
             
             em.persist(evento);
         } catch (NumberFormatException | DateTimeException e) {
-            System.err.println("EventoEnergiaService::createAndSave: " + e.getLocalizedMessage());
+            LOGGER.log(Level.WARNING, "EventoEnergiaService:createAndSave - Errore: {0}", new Object[]{e.getLocalizedMessage()});
         }
     }
     

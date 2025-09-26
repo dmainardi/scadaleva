@@ -47,6 +47,8 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfigBuilder;
 import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaSubscription;
@@ -73,6 +75,7 @@ import org.eclipse.milo.opcua.stack.core.util.EndpointUtil;
 @Startup
 @Singleton
 public class OpcuaController {
+    private static final Logger LOGGER = Logger.getLogger(OpcuaController.class.getName());
     
     @Inject
     OpcuaDeviceService opcuaDeviceService;
@@ -122,7 +125,7 @@ public class OpcuaController {
                 clients.put(client, opcuaDevice);
             } catch (InterruptedException | ExecutionException | NumberFormatException | UaException | TimeoutException ex) {
                 if (!getCause(ex).getClass().equals(ConnectTimeoutException.class)) // evita di 'sporcare' i log con ConnectTimeoutException quando le macchine sono spente
-                    System.err.println("OpcuaController:init - Errore: " + ex.getLocalizedMessage());
+                    LOGGER.log(Level.WARNING, "OpcuaController:createAndConnectToClients - Errore: {0}", new Object[]{ex.getLocalizedMessage()});
             }
         }
     }
@@ -152,11 +155,11 @@ public class OpcuaController {
                         new UaSubscriptionManager.SubscriptionListener() {
                             @Override
                             public void onSubscriptionTransferFailed(UaSubscription subscription, StatusCode statusCode) {
-                                System.err.println("OpcuaController:onSubscriptionTransferFailed - Errore: " + statusCode);
+                                LOGGER.log(Level.WARNING, "OpcuaController:listen - Errore: {0}", new Object[]{statusCode});
                                 try {
                                     createSubscription(client, opcuaNode);
                                 } catch (UaException e) {
-                                    System.err.println("OpcuaController:onSubscriptionTransferFailed - Errore: " + e);
+                                    LOGGER.log(Level.WARNING, "OpcuaController:listen - Errore: {0}", new Object[]{e.getMessage()});
                                 }
                             }
 
@@ -164,7 +167,7 @@ public class OpcuaController {
                 );
                 createSubscription(client, opcuaNode);
             } catch (NumberFormatException e) {
-                System.err.println("OpcuaController:listen - Errore: " + e.getLocalizedMessage());
+                LOGGER.log(Level.WARNING, "OpcuaController:listen - Errore: {0}", new Object[]{e.getLocalizedMessage()});
             }
         }
     }
@@ -250,7 +253,7 @@ public class OpcuaController {
                     try {
                         client.write(writeValues).get();
                     } catch (InterruptedException | ExecutionException e) {
-                        System.err.println("OpcuaController:createSubscription(DataChangeListener) - Errore: " + e.getLocalizedMessage());
+                        LOGGER.log(Level.WARNING, "OpcuaController:createSubscription - Errore: {0}", new Object[]{e.getLocalizedMessage()});
                     }
                 }
                 
@@ -291,24 +294,31 @@ public class OpcuaController {
                         )
                 );
 
-                //System.out.println("Macchina: " + clients.get(item.getClient()).getMacchina().getCodice());
-                //System.out.println(String.format("subscription value received: item={%s}, value={%s}", item.getNodeId(), value.getValue()));
+                LOGGER.log(
+                        Level.FINE,
+                        "MqttController::createSubscription - macchina: {0}, subscription value received: item={1}, value={2}",
+                        new Object[]{
+                            clients.get(item.getClient()).getMacchina().getCodice(),
+                            item.getNodeId(),
+                            value.getValue()
+                        }
+                );
             }
         });
 
         ManagedDataItem managedDataItem = subscription.createDataItem(createNodeId(opcuaNode));
         if (managedDataItem.getStatusCode().isGood()) {
-            //System.out.println(String.format("item created for nodeId={%s}", managedDataItem.getNodeId()));
+            LOGGER.log(Level.FINE, "MqttController::createSubscription - item created for nodeId={0}", new Object[]{managedDataItem.getNodeId()});
 
             dataItems.add(managedDataItem);
         } else {
-            System.err.println(String.format("failed to create item for nodeId={%s} (status={%s})", managedDataItem.getNodeId(), managedDataItem.getStatusCode()));
+            LOGGER.log(Level.WARNING, "OpcuaController:createSubscription - failed to create item for nodeId={0} (status={1})", new Object[]{managedDataItem.getNodeId(), managedDataItem.getStatusCode()});
         }
     }
     
     @Schedule(minute = "*/5", hour = "*", persistent = false)
     protected void checkOpcuaDevicesLiveness() {
-        //System.out.println("Adesso provo a vedere se la macchina precedentemente spenta si è accesa");
+        LOGGER.log(Level.FINE, "OpcuaController:checkOpcuaDevicesLiveness - Adesso provo a vedere se la macchina precedentemente spenta si è accesa");
         
         List<OpcuaDevice> opcuaDevices = opcuaDeviceService.list();
         if (opcuaDevices != null) {
@@ -324,7 +334,7 @@ public class OpcuaController {
                 try {
                     dataItem.delete();
                 } catch (UaException ex) {
-                    System.err.println("OpcuaController:destroy - Errore: " + ex.getLocalizedMessage());
+                    LOGGER.log(Level.WARNING, "OpcuaController:destroy - Errore: {0}", new Object[]{ex.getLocalizedMessage()});
                 }
             }
         if (clients != null)
@@ -333,7 +343,7 @@ public class OpcuaController {
                     try {
                         client.disconnect().get(5, TimeUnit.SECONDS);
                     } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-                        System.err.println("OpcuaController:destroy - Errore: " + ex.getLocalizedMessage());
+                        LOGGER.log(Level.WARNING, "OpcuaController:destroy - Errore: {0}", new Object[]{ex.getLocalizedMessage()});
                     }
             }
     }

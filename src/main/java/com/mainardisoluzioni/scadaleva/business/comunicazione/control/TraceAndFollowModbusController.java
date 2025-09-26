@@ -40,9 +40,14 @@ import java.net.InetAddress;
 import java.net.NoRouteToHostException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -51,6 +56,8 @@ import java.util.Map;
 @Startup
 @Singleton
 public class TraceAndFollowModbusController {
+    private static final Logger LOGGER = Logger.getLogger(TraceAndFollowModbusController.class.getName());
+    
     @Inject
     TraceAndFollowModbusService traceAndFollowModbusService;
     
@@ -63,7 +70,7 @@ public class TraceAndFollowModbusController {
     private Map<TraceAndFollowModbusDevice, EventoEnergia> penultimiEventiEnergia;  // ancora da salvare sul database
     
     private final BigDecimal PERCENTUALE = new BigDecimal(0.05);
-    private final BigDecimal SOGLIA = new BigDecimal(2500);
+    private final BigDecimal SOGLIA = new BigDecimal(5000);
     
     @PostConstruct
     public void init() {
@@ -148,6 +155,12 @@ public class TraceAndFollowModbusController {
             datoSalvato = true;
         }
         if (!datoSalvato && ultimoEventoEnergia != null && ultimoEventoEnergia.getPotenzaIstantanea() != null) {
+            NumberFormat nf = DecimalFormat.getNumberInstance(Locale.ITALY);
+            LOGGER.log(
+                    Level.FINE,
+                    "TraceAndFollowModbusController::controllaSeSalvareEventoEnergia - ultima potenza: {0}, potenza attutale: {1}",
+                    new Object[]{nf.format(ultimoEventoEnergia.getPotenzaIstantanea()), nf.format(potenzaIstantanea)}
+            );
             if (
                     potenzaIstantanea.compareTo(SOGLIA) <= 0
                     &&

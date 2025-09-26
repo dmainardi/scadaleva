@@ -59,6 +59,7 @@ public class EventoEnergia {
     private BigDecimal potenzaIstantanea;
 
     public EventoEnergia() {
+        consumo = BigDecimal.ZERO;
     }
 
     public Long getId() {

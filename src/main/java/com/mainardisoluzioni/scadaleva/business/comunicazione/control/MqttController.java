@@ -28,6 +28,7 @@ import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.ejb.Singleton;
+import jakarta.ejb.Startup;
 import jakarta.inject.Inject;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
@@ -41,10 +42,10 @@ import java.util.UUID;
  *
  * @author adminavvimpa
  */
-//@Startup
+@Startup
 @Singleton
 public class MqttController {
-    private final String BROKER_IP_ADDRESS = "192.168.2.125";
+    private final String BROKER_IP_ADDRESS = "192.168.220.125";
     
     private Mqtt5AsyncClient client;
     private Map<Mqtt5SubAck, String> mqtt5SubAcks;

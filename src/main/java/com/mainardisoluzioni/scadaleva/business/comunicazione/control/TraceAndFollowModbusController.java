@@ -70,7 +70,6 @@ public class TraceAndFollowModbusController {
     private Map<TraceAndFollowModbusDevice, EventoEnergia> penultimiEventiEnergia;  // ancora da salvare sul database
     
     private final BigDecimal PERCENTUALE = new BigDecimal(0.05);
-    private final BigDecimal SOGLIA = new BigDecimal(5000);
     
     @PostConstruct
     public void init() {
@@ -162,7 +161,7 @@ public class TraceAndFollowModbusController {
                     new Object[]{nf.format(ultimoEventoEnergia.getPotenzaIstantanea()), nf.format(potenzaIstantanea)}
             );
             if (
-                    potenzaIstantanea.compareTo(SOGLIA) <= 0
+                    potenzaIstantanea.compareTo(BigDecimal.valueOf(traceAndFollowModbusDevice.getSogliaInWatt())) <= 0
                     &&
                     potenzaIstantanea.compareTo(ultimoEventoEnergia.getPotenzaIstantanea().multiply(BigDecimal.ONE.subtract(PERCENTUALE))) >= 0
                     &&

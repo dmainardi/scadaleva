@@ -50,6 +50,13 @@ public class TraceAndFollowModbusDevice {
     
     @Column(nullable = false)
     private @NotNull Integer modbusUnitId;
+    
+    /**
+     * Soglia (espressa in Watt) sotto la quale gli eventi energia sono
+     * campionati solo quando cambiano di molto (+- 5%).
+     */
+    @Column(nullable = false)
+    private @NotNull Integer sogliaInWatt;
 
     public TraceAndFollowModbusDevice() {
     }
@@ -92,6 +99,14 @@ public class TraceAndFollowModbusDevice {
 
     public void setModbusUnitId(Integer modbusUnitId) {
         this.modbusUnitId = modbusUnitId;
+    }
+
+    public Integer getSogliaInWatt() {
+        return sogliaInWatt;
+    }
+
+    public void setSogliaInWatt(Integer sogliaInWatt) {
+        this.sogliaInWatt = sogliaInWatt;
     }
     
 }

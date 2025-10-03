@@ -100,7 +100,7 @@ public class MqttController {
             Jsonb jsonb = JsonbBuilder.create();
             PayloadTelemetryTraceAndFollow payloadTaF = jsonb.fromJson(payload, PayloadTelemetryTraceAndFollow.class);
             LOGGER.log(
-                    Level.INFO,
+                    Level.FINE,
                     "MqttController::estraiDati - macchina: {0}, ts: {1}, consumo: {2}",
                     new Object[]{
                         macchina.getCodice(),

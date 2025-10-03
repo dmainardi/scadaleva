@@ -24,10 +24,11 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.time.DateTimeException;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,10 +48,20 @@ public class EventoEnergiaService {
             EventoEnergia evento = new EventoEnergia();
             evento.setMacchina(macchina);
             evento.setConsumo(consumoWh);
-            evento.setDataOra(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(timestamp)), ZoneId.of("UTC")));
+            evento.setDataOra(LocalDateTime.now(ZoneId.of("UTC")));
+            //evento.setDataOra(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(timestamp)), ZoneId.of("UTC"))); // dal payload del Trace And Follow
             
             em.persist(evento);
-            LOGGER.log(Level.FINE, "EventoEnergiaService::createAndSave - Evento energia scritto sul database");
+            LOGGER.log(
+                    Level.FINE,
+                    "EventoEnergiaService::createAndSave - Evento energia scritto sul database - macchina: {0}, ts: {1}, consumo: {2}",
+                    new Object[]{
+                        evento.getMacchina().getCodice(),
+                        evento.getDataOra(),
+                        DecimalFormat.getNumberInstance(Locale.ITALY).format(evento.getConsumo())
+                    }
+            );
+            
         } catch (NumberFormatException | DateTimeException e) {
             LOGGER.log(Level.WARNING, "EventoEnergiaService:createAndSave - Errore: {0}", new Object[]{e.getLocalizedMessage()});
         }

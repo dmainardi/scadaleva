@@ -13,5 +13,5 @@ chmod 400 /home/${AS_USER_NAME}/accessCredential
 
 tee -a /etc/fstab > /dev/null <<EOT
 
-//${IP_ACCESS_READ_ONLY_ADDRESS}/Archivio  /home/${AS_USER_NAME}/${APP_NAME}/${DB_ACCESS_READ_ONLY_FOLDER_NAME}  cifs credentials=/home/${AS_USER_NAME}/accessCredential,x-systemd.automount,vers=3.0,iocharset=utf8,file_mode=0755,dir_mode=0755  0  0
+//${IP_ACCESS_READ_ONLY_ADDRESS}/ma-164_scadasync  /home/${AS_USER_NAME}/${APP_NAME}/${DB_ACCESS_READ_ONLY_FOLDER_NAME}  cifs credentials=/home/${AS_USER_NAME}/accessCredential,x-systemd.automount,vers=3.0,iocharset=utf8,file_mode=0755,dir_mode=0755  0  0
 EOT

@@ -163,6 +163,8 @@ public class TraceAndFollowModbusController {
             if (
                     potenzaIstantanea.compareTo(BigDecimal.valueOf(traceAndFollowModbusDevice.getSogliaInWatt())) <= 0
                     &&
+                    (penultimoEventoEnergia != null && penultimoEventoEnergia.getPotenzaIstantanea().compareTo(BigDecimal.valueOf(traceAndFollowModbusDevice.getSogliaInWatt())) <= 0)
+                    &&
                     potenzaIstantanea.compareTo(ultimoEventoEnergia.getPotenzaIstantanea().multiply(BigDecimal.ONE.subtract(PERCENTUALE))) >= 0
                     &&
                     potenzaIstantanea.compareTo(ultimoEventoEnergia.getPotenzaIstantanea().multiply(BigDecimal.ONE.add(PERCENTUALE))) <= 0

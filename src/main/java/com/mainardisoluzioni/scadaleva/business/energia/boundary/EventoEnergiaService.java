@@ -56,7 +56,7 @@ public class EventoEnergiaService {
         }
     }
     
-    public void createAndSave(@NotNull Macchina macchina, @NotNull BigDecimal consumoWh, BigDecimal potenzaIstantanea) {
+    /*public void createAndSave(@NotNull Macchina macchina, @NotNull BigDecimal consumoWh, BigDecimal potenzaIstantanea) {
         try {
             EventoEnergia evento = new EventoEnergia();
             evento.setMacchina(macchina);
@@ -68,7 +68,7 @@ public class EventoEnergiaService {
         } catch (NumberFormatException | DateTimeException e) {
             LOGGER.log(Level.WARNING, "EventoEnergiaService:createAndSave - Errore: {0}", new Object[]{e.getLocalizedMessage()});
         }
-    }
+    }*/
     
     public static EventoEnergia create(@NotNull Macchina macchina, BigDecimal potenzaIstantanea) {
         EventoEnergia evento = new EventoEnergia();

@@ -33,7 +33,9 @@ import com.mainardisoluzioni.scadaleva.business.produzione.entity.OrdineDiProduz
 import com.mainardisoluzioni.scadaleva.business.produzione.entity.ParametroMacchinaProduzione;
 import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
 import jakarta.annotation.PostConstruct;
+import jakarta.ejb.Schedule;
 import jakarta.ejb.Singleton;
+import jakarta.ejb.Startup;
 import jakarta.inject.Inject;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -42,6 +44,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -51,6 +55,7 @@ import java.util.stream.Collectors;
 //@Startup
 @Singleton
 public class AccessController {
+    private static final Logger LOGGER = Logger.getLogger(AccessController.class.getName());
     
     private Map<Macchina, LocalDateTime> ultimoTimestampProduzione;
     
@@ -95,6 +100,13 @@ public class AccessController {
         if (macchine != null) {
             for (Macchina macchina : macchine) {
                 List<EventoAccess> eventiAccess = eventoAccessService.list(ultimoTimestampProduzione.get(macchina));
+                LOGGER.log(
+                        Level.INFO,
+                        "AccessController::controllaProduzioneFustellatrice - Trovati {0} eventi su Access",
+                        new Object[]{
+                            eventiAccess.size()
+                        }
+                );
                 for (EventoAccess eventoAccess : eventiAccess) {
                     OrdineDiProduzione ordineDiProduzione = ordineDiProduzioneService.getLastOrdineDiProduzione(macchina.getCodice());
                     EventoProduzione eventoProduzione = EventoProduzioneController.createEventoProduzione(

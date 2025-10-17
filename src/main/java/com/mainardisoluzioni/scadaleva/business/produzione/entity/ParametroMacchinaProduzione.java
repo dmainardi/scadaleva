@@ -46,6 +46,8 @@ public class ParametroMacchinaProduzione {
     @Column(nullable = false, columnDefinition = "smallint")
     private @NotNull CategoriaVariabileProduzione categoriaVariabileProduzione;
     
+    private String testoCategoriaVariabileProduzione;
+    
     @Column(nullable = false)
     private @NotBlank String valore;
 
@@ -55,6 +57,7 @@ public class ParametroMacchinaProduzione {
     public ParametroMacchinaProduzione(CategoriaVariabileProduzione categoriaVariabileProduzione, String valore) {
         this();
         this.categoriaVariabileProduzione = categoriaVariabileProduzione;
+        this.testoCategoriaVariabileProduzione = this.categoriaVariabileProduzione.toString();
         this.valore = valore;
     }
 
@@ -80,6 +83,15 @@ public class ParametroMacchinaProduzione {
 
     public void setCategoriaVariabileProduzione(CategoriaVariabileProduzione categoriaVariabileProduzione) {
         this.categoriaVariabileProduzione = categoriaVariabileProduzione;
+        this.testoCategoriaVariabileProduzione = this.categoriaVariabileProduzione.toString();
+    }
+
+    public String getTestoCategoriaVariabileProduzione() {
+        return testoCategoriaVariabileProduzione;
+    }
+
+    public void setTestoCategoriaVariabileProduzione(String testoCategoriaVariabileProduzione) {
+        this.testoCategoriaVariabileProduzione = testoCategoriaVariabileProduzione;
     }
 
     public String getValore() {

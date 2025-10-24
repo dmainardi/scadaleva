@@ -61,7 +61,8 @@ public enum CategoriaVariabileProduzione {
     FUSTELLATRICE_STRATI(37),
     FUSTELLATRICE_DELTA_1(38),
     FUSTELLATRICE_CORREZIONE(39),
-    FUSTELLATRICE_OFFSET_Z(40);
+    FUSTELLATRICE_OFFSET_Z(40),
+    TIMESTAMP(41);
     
     private final int value;
     

@@ -2,6 +2,8 @@
 <persistence version="3.0" xmlns="https://jakarta.ee/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
     <persistence-unit name="scadaleva_PU" transaction-type="JTA">
         <jta-data-source>jdbc/mysql_scadaleva</jta-data-source>
+        <class>com.mainardisoluzioni.scadaleva.business.comunicazione.entity.CsvDevice</class>
+        <class>com.mainardisoluzioni.scadaleva.business.comunicazione.entity.CsvNode</class>
         <class>com.mainardisoluzioni.scadaleva.business.comunicazione.entity.MqttDevice</class>
         <class>com.mainardisoluzioni.scadaleva.business.comunicazione.entity.OpcuaDevice</class>
         <class>com.mainardisoluzioni.scadaleva.business.comunicazione.entity.OpcuaNode</class>

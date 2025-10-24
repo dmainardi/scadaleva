@@ -35,26 +35,4 @@
             <property name="eclipselink.logging.parameters" value="true"/>-->
         </properties>
     </persistence-unit>
-    <persistence-unit name="scadaleva_access_readOnly_archivioStorico_PU" transaction-type="JTA">
-        <jta-data-source>jdbc/access_readOnly_scadaleva_archivioStorico</jta-data-source>
-        <class>com.mainardisoluzioni.scadaleva.business.fustellatrice.entity.EventoAccess</class>
-        <exclude-unlisted-classes>true</exclude-unlisted-classes>
-        <properties>
-            <property name="eclipselink.target-database" value="HSQL"/>
-            <!--Uncomment/comment for enabling/disabling sql logging-->
-            <!--<property name="eclipselink.logging.level.sql" value="FINE"/>
-            <property name="eclipselink.logging.parameters" value="true"/>-->
-        </properties>
-    </persistence-unit>
-    <persistence-unit name="scadaleva_access_readOnly_archivioLavoro_PU" transaction-type="JTA">
-        <jta-data-source>jdbc/access_readOnly_scadaleva_archivioLavoro</jta-data-source>
-        <class>com.mainardisoluzioni.scadaleva.business.fustellatrice.entity.RicettaAccess</class>
-        <exclude-unlisted-classes>true</exclude-unlisted-classes>
-        <properties>
-            <property name="eclipselink.target-database" value="HSQL"/>
-            <!--Uncomment/comment for enabling/disabling sql logging-->
-            <!--<property name="eclipselink.logging.level.sql" value="FINE"/>
-            <property name="eclipselink.logging.parameters" value="true"/>-->
-        </properties>
-    </persistence-unit>
 </persistence>

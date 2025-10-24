@@ -18,7 +18,6 @@ package com.mainardisoluzioni.scadaleva.business.comunicazione.control;
 
 import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.CsvDevice;
 import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.CsvNode;
-import com.mainardisoluzioni.scadaleva.business.fustellatrice.entity.RicettaAccess;
 import com.mainardisoluzioni.scadaleva.business.produzione.boundary.EventoProduzioneService;
 import com.mainardisoluzioni.scadaleva.business.produzione.boundary.OrdineDiProduzioneService;
 import com.mainardisoluzioni.scadaleva.business.produzione.boundary.ProduzioneGestionaleService;
@@ -34,8 +33,6 @@ import jakarta.validation.constraints.NotNull;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 import java.util.logging.Level;

@@ -22,13 +22,13 @@ ssh -p $(config_get SSH_PORT) root@$(config_get IP_ADDRESS) \
 ssh-copy-id -p $(config_get SSH_PORT) mysql@$(config_get IP_ADDRESS)
 
 # Creare la cartella condivisa per la connessione con Access
-scp -P $(config_get SSH_PORT) accessCredential root@$(config_get IP_ADDRESS):
-ssh -p $(config_get SSH_PORT) root@$(config_get IP_ADDRESS) \
-    AS_USER_NAME=$(config_get AS_USER_NAME) \
-    APP_NAME=$(config_get APP_NAME) \
-    DB_ACCESS_READ_ONLY_FOLDER_NAME=$(config_get DB_ACCESS_READ_ONLY_FOLDER_NAME) \
-    IP_ACCESS_READ_ONLY_ADDRESS=$(config_get IP_ACCESS_READ_ONLY_ADDRESS) \
-    'bash -s' < 0_creazioneCartellaCondivisa.sh
+#scp -P $(config_get SSH_PORT) accessCredential root@$(config_get IP_ADDRESS):
+#ssh -p $(config_get SSH_PORT) root@$(config_get IP_ADDRESS) \
+#    AS_USER_NAME=$(config_get AS_USER_NAME) \
+#    APP_NAME=$(config_get APP_NAME) \
+#    DB_ACCESS_READ_ONLY_FOLDER_NAME=$(config_get DB_ACCESS_READ_ONLY_FOLDER_NAME) \
+#    IP_ACCESS_READ_ONLY_ADDRESS=$(config_get IP_ACCESS_READ_ONLY_ADDRESS) \
+#    'bash -s' < 0_creazioneCartellaCondivisa.sh
 
 # Installare Java 17 (predefinito) se si usa Debian 12
 ssh -p $(config_get SSH_PORT) root@$(config_get IP_ADDRESS) 'apt-get -qy install unzip default-jdk-headless'
@@ -77,8 +77,6 @@ ssh -p $(config_get SSH_PORT) $(config_get AS_USER_NAME)@$(config_get IP_ADDRESS
     DB_READ_ONLY_NAME=$(config_get DB_READ_ONLY_NAME) \
     IP_READ_ONLY_ADDRESS=$(config_get IP_READ_ONLY_ADDRESS) \
     TCP_READ_ONLY_PORT=$(config_get TCP_READ_ONLY_PORT) \
-    DB_ACCESS_READ_ONLY_USER_NAME=$(config_get DB_ACCESS_READ_ONLY_USER_NAME) \
-    DB_ACCESS_READ_ONLY_FOLDER_NAME=$(config_get DB_ACCESS_READ_ONLY_FOLDER_NAME) \
     APP_NAME=$(config_get APP_NAME) \
     'bash -s' < 0_configurazionePayara.sh
 

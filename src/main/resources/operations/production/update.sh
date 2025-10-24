@@ -201,8 +201,6 @@ updateApplicationServer()
         DB_READ_ONLY_NAME=$(config_get DB_READ_ONLY_NAME) \
         IP_READ_ONLY_ADDRESS=$(config_get IP_READ_ONLY_ADDRESS) \
         TCP_READ_ONLY_PORT=$(config_get TCP_READ_ONLY_PORT) \
-        DB_ACCESS_READ_ONLY_USER_NAME=$(config_get DB_ACCESS_READ_ONLY_USER_NAME) \
-        DB_ACCESS_READ_ONLY_FOLDER_NAME=$(config_get DB_ACCESS_READ_ONLY_FOLDER_NAME) \
         APP_NAME=$(config_get APP_NAME) \
         'bash -s' < 0_configurazionePayara.sh
 

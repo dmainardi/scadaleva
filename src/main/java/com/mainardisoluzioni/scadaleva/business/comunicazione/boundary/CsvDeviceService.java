@@ -30,7 +30,7 @@ import java.util.List;
  * @author maina
  */
 @Stateless
-public class CsvDeviceBoundary {
+public class CsvDeviceService {
     @PersistenceContext(unitName = "scadaleva_PU")
     EntityManager em;
     

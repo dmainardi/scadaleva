@@ -70,7 +70,7 @@ public class CsvDeviceController {
                     String[] columns = line.split(csvDevice.getDelimitatoreCsv());
                     try {
                         LocalDateTime readTimestamp = LocalDateTime.parse(columns[timestampColumnIndex]);
-                        if (readTimestamp.isBefore(lastTimestampProduzione))
+                        if (lastTimestampProduzione != null && (readTimestamp == null || readTimestamp.isBefore(lastTimestampProduzione)))
                             continue;
                         else {
                             OrdineDiProduzione ordineDiProduzione = ordineDiProduzioneService.getLastOrdineDiProduzione(macchina.getCodice());

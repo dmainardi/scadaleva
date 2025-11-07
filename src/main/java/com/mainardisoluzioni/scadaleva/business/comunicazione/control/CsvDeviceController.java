@@ -65,8 +65,8 @@ public class CsvDeviceController {
             Integer funzionamentoCicloAutomaticoColumIndex = csvDevice.getColumnIndex(CategoriaVariabileProduzione.FUNZIONAMENTO_CICLO_AUTOMATICO);
             Integer presenzaAllarmeColumIndex = csvDevice.getColumnIndex(CategoriaVariabileProduzione.PRESENZA_ALLARME);
             while (timestampColumnIndex != null && scanner.hasNextLine()) {
+                String line = scanner.nextLine();
                 if (intestazioneScansita || !csvDevice.getIntestazionePresente()) {
-                    String line = scanner.nextLine();
                     String[] columns = line.split(csvDevice.getDelimitatoreCsv());
                     try {
                         LocalDateTime readTimestamp = LocalDateTime.parse(columns[timestampColumnIndex]);
@@ -126,7 +126,14 @@ public class CsvDeviceController {
                             );
                         }
                     } catch (DateTimeParseException ex) {
-                        LOGGER.log(Level.WARNING, "CsvDeviceController:leggiDatiDaCsvEPopolaEventoProduzione - Errore nella lettura del timestamp: {0}", new Object[]{ex.getLocalizedMessage()});
+                        LOGGER.log(
+                                Level.WARNING,
+                                "CsvDeviceController:leggiDatiDaCsvEPopolaEventoProduzione - Errore nella lettura del timestamp: {0} - intestazione presente? {1}",
+                                new Object[]{
+                                    ex.getLocalizedMessage(),
+                                    csvDevice.getIntestazionePresente()
+                                }
+                        );
                     }
                 }
                 intestazioneScansita = true;

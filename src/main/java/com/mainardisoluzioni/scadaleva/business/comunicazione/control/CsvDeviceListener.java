@@ -41,7 +41,7 @@ public class CsvDeviceListener {
     @Inject
     CsvDeviceService service;
     
-    @Schedule(minute = "*/1", hour = "*/1", persistent = false)
+    @Schedule(minute = "*", hour = "*", persistent = false)
     protected void checkForNewCsvData() {
         LOGGER.log(Level.FINE, "CsvDeviceListener:checkForNewCsvData - Adesso provo a vedere se ci sono nuovi dati dai CSV dei macchinari");
         

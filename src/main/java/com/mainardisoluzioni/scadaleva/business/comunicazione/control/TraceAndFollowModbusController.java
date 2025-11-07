@@ -180,7 +180,7 @@ public class TraceAndFollowModbusController {
         }
     }
     
-    @Schedule(second = "*/1", minute = "*", hour = "*", persistent = false)
+    @Schedule(second = "*", minute = "*", hour = "*", persistent = false)
     public void leggiRegistro() {
         for (Map.Entry<ModbusMaster, TraceAndFollowModbusDevice> entry : clients.entrySet()) {
             try {

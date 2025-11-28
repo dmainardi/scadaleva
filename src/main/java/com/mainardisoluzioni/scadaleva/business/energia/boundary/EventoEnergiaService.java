@@ -26,6 +26,7 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.DateTimeException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Locale;
@@ -48,8 +49,7 @@ public class EventoEnergiaService {
             EventoEnergia evento = new EventoEnergia();
             evento.setMacchina(macchina);
             evento.setConsumo(consumoWh);
-            evento.setDataOra(LocalDateTime.now(ZoneId.of("UTC")));
-            //evento.setDataOra(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(timestamp)), ZoneId.of("UTC"))); // dal payload del Trace And Follow
+            evento.setDataOra(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(timestamp)), ZoneId.of("UTC")));
             
             em.persist(evento);
             LOGGER.log(

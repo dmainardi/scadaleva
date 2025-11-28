@@ -24,6 +24,8 @@ import com.mainardisoluzioni.scadaleva.business.comunicazione.boundary.MqttDevic
 import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.MqttDevice;
 import com.mainardisoluzioni.scadaleva.business.energia.boundary.EventoEnergiaService;
 import com.mainardisoluzioni.scadaleva.business.energia.entity.PayloadTelemetryTraceAndFollow;
+import com.mainardisoluzioni.scadaleva.business.produzione.boundary.EventoProduzioneService;
+import com.mainardisoluzioni.scadaleva.business.produzione.control.EventoProduzioneController;
 import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -34,6 +36,9 @@ import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbException;
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -61,6 +66,9 @@ public class MqttController {
     
     @Inject
     EventoEnergiaService eventoEnergiaService;
+    
+    @Inject
+    EventoProduzioneService eventoProduzioneService;
     
     @PostConstruct
     public void init() {
@@ -108,7 +116,28 @@ public class MqttController {
                         DecimalFormat.getNumberInstance(Locale.ITALY).format(payloadTaF.getContenuto().getConsumoWh())
                     }
             );
-            eventoEnergiaService.createAndSave(macchina, payloadTaF.getTimestamp(), payloadTaF.getContenuto().getConsumoWh());
+            LocalDateTime timestamp = LocalDateTime.now();
+            eventoEnergiaService.createAndSave(
+                    macchina,
+                    //payloadTaF.getTimestamp(), // non usiamo il timestamp del T&F perché non è preciso
+                    Long.toString(timestamp.toInstant(ZoneOffset.UTC).toEpochMilli()),
+                    payloadTaF.getContenuto().getConsumoWh()
+            );
+            Integer input1 = payloadTaF.getContenuto().getInput1();
+            Integer input2 = payloadTaF.getContenuto().getInput2();
+            Integer input3 = payloadTaF.getContenuto().getInput3();
+            Integer input4 = payloadTaF.getContenuto().getInput4();
+            int totalInput = 0;
+            totalInput +=
+                    (input1 != null ? input1 : 0)
+                    +
+                    (input2 != null ? input2 : 0)
+                    +
+                    (input3 != null ? input3 : 0)
+                    +
+                    (input4 != null ? input4 : 0);
+            if (totalInput > 0)
+                eventoProduzioneService.save(EventoProduzioneController.createEventoProduzione(macchina, timestamp.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime(), totalInput, null));
         } catch (JsonbException e) {
             LOGGER.log(Level.WARNING, "MqttController:estraiDati - Errore: {0}", new Object[]{e.getLocalizedMessage()});
         }

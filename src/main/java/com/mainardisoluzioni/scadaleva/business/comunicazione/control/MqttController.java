@@ -70,6 +70,9 @@ public class MqttController {
     @Inject
     EventoProduzioneService eventoProduzioneService;
     
+    @Inject
+    OpcuaController opcuaController;
+    
     @PostConstruct
     public void init() {
         client = Mqtt5Client.builder()
@@ -116,7 +119,7 @@ public class MqttController {
                         DecimalFormat.getNumberInstance(Locale.ITALY).format(payloadTaF.getContenuto().getConsumoWh())
                     }
             );
-            LocalDateTime timestamp = LocalDateTime.now();
+            LocalDateTime timestamp = LocalDateTime.now(ZoneId.of("UTC"));
             eventoEnergiaService.createAndSave(
                     macchina,
                     //payloadTaF.getTimestamp(), // non usiamo il timestamp del T&F perché non è preciso
@@ -127,7 +130,7 @@ public class MqttController {
             Integer input2 = payloadTaF.getContenuto().getInput2();
             Integer input3 = payloadTaF.getContenuto().getInput3();
             Integer input4 = payloadTaF.getContenuto().getInput4();
-            int totalInput = 0;
+            Integer totalInput = 0;
             totalInput +=
                     (input1 != null ? input1 : 0)
                     +
@@ -136,8 +139,14 @@ public class MqttController {
                     (input3 != null ? input3 : 0)
                     +
                     (input4 != null ? input4 : 0);
-            if (totalInput > 0)
-                eventoProduzioneService.save(EventoProduzioneController.createEventoProduzione(macchina, timestamp.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime(), totalInput, null));
+            opcuaController.getLastCycleCounters().putIfAbsent(macchina, totalInput);
+            if (totalInput > 0) {
+                int quantitaProdotta = totalInput - opcuaController.getLastCycleCounters().get(macchina);
+                if (quantitaProdotta > 0) {
+                    opcuaController.getLastCycleCounters().put(macchina, totalInput);
+                    eventoProduzioneService.save(EventoProduzioneController.createEventoProduzione(macchina, timestamp, quantitaProdotta, null));
+                }
+            }
         } catch (JsonbException e) {
             LOGGER.log(Level.WARNING, "MqttController:estraiDati - Errore: {0}", new Object[]{e.getLocalizedMessage()});
         }

@@ -90,7 +90,7 @@ public class OpcuaController {
     ProduzioneGestionaleService produzioneGestionaleService;
     
     private Map<OpcUaClient, OpcuaDevice> clients;
-    private Map<Macchina, Integer> lastCycleCounters;   // ultimo valore del contapezzi
+    private final Map<Macchina, Integer> lastCycleCounters = new HashMap<>();   // ultimo valore del contapezzi
     
     private List<ManagedDataItem> dataItems;
     
@@ -101,7 +101,7 @@ public class OpcuaController {
     
     private void createAndConnectToClientsFromDatabase() {
         clients = new HashMap<>();
-        lastCycleCounters = new HashMap<>();
+        lastCycleCounters.clear();
         List<OpcuaDevice> opcuaDevices = opcuaDeviceService.list();
         if (opcuaDevices != null)
             createAndConnectToClients(opcuaDevices);
@@ -362,4 +362,9 @@ public class OpcuaController {
         else
             return new NodeId(opcuaNode.getNameSpaceIndex(), opcuaNode.getNodeIdentifier());
     }
+
+    public Map<Macchina, Integer> getLastCycleCounters() {
+        return lastCycleCounters;
+    }
+    
 }

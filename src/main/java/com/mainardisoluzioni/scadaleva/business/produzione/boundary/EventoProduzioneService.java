@@ -45,6 +45,8 @@ public class EventoProduzioneService {
         else
             return em.merge(eventoProduzione);
         
+        em.flush();
+        
         return eventoProduzione;
     }
     

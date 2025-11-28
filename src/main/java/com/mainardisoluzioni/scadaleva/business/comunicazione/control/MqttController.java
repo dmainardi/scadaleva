@@ -142,9 +142,10 @@ public class MqttController {
             opcuaController.getLastCycleCounters().putIfAbsent(macchina, totalInput);
             if (totalInput > 0) {
                 int quantitaProdotta = totalInput - opcuaController.getLastCycleCounters().get(macchina);
-                if (quantitaProdotta > 0) {
+                if (quantitaProdotta >= 0) {
                     opcuaController.getLastCycleCounters().put(macchina, totalInput);
-                    eventoProduzioneService.save(EventoProduzioneController.createEventoProduzione(macchina, timestamp, quantitaProdotta, null));
+                    if (quantitaProdotta > 0)
+                        eventoProduzioneService.save(EventoProduzioneController.createEventoProduzione(macchina, timestamp, quantitaProdotta, null));
                 }
             }
         } catch (JsonbException e) {

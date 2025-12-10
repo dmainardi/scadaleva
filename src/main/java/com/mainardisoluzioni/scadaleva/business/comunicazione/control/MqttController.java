@@ -142,11 +142,11 @@ public class MqttController {
             opcuaController.getLastCycleCounters().putIfAbsent(macchina, totalInput);
             if (totalInput > 0) {
                 int quantitaProdotta = totalInput - opcuaController.getLastCycleCounters().get(macchina);
-                if (quantitaProdotta >= 0) {
-                    opcuaController.getLastCycleCounters().put(macchina, totalInput);
-                    if (quantitaProdotta > 0)
-                        eventoProduzioneService.save(EventoProduzioneController.createEventoProduzione(macchina, timestamp, quantitaProdotta, null));
-                }
+                if (quantitaProdotta > 0)
+                    eventoProduzioneService.save(EventoProduzioneController.createEventoProduzione(macchina, timestamp, quantitaProdotta, null));
+                if (quantitaProdotta < 0)
+                    eventoProduzioneService.save(EventoProduzioneController.createEventoProduzione(macchina, timestamp, totalInput, null));
+                opcuaController.getLastCycleCounters().put(macchina, totalInput);
             }
         } catch (JsonbException e) {
             LOGGER.log(Level.WARNING, "MqttController:estraiDati - Errore: {0}", new Object[]{e.getLocalizedMessage()});

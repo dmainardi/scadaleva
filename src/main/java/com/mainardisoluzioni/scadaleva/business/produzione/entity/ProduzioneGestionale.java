@@ -53,7 +53,7 @@ public class ProduzioneGestionale {
     @Column(name = "descrizione", length = 40)
     private String nomeArticolo;
     
-    @Column(name = "qta_commessa", scale = 16, precision = 4)
+    @Column(name = "qta_commessa", scale = 4, precision = 16)
     private BigDecimal quantita;                       // quantità dell'ordine
     
     @Column(name = "fase", length = 6)
@@ -90,10 +90,10 @@ public class ProduzioneGestionale {
     @Column(name = "ultimoUDXuscito", length = 20)
     private String serialeEtichetta;
     
-    @Column(name = "ProgressivoBuoniCommessa", scale = 16, precision = 4)
+    @Column(name = "ProgressivoBuoniCommessa", scale = 4, precision = 16)
     private BigDecimal pezziProdottiCorrettamente;
     
-    @Column(name = "ProgressivoScartiCommessa", scale = 16, precision = 4)
+    @Column(name = "ProgressivoScartiCommessa", scale = 4, precision = 16)
     private BigDecimal pezziProdottiDiScarto;
     
     public ProduzioneGestionale() {

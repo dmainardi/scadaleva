@@ -19,13 +19,11 @@ package com.mainardisoluzioni.scadaleva.business.comunicazione.control;
 import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.CsvDevice;
 import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.CsvNode;
 import com.mainardisoluzioni.scadaleva.business.produzione.boundary.EventoProduzioneService;
-import com.mainardisoluzioni.scadaleva.business.produzione.boundary.OrdineDiProduzioneService;
-import com.mainardisoluzioni.scadaleva.business.produzione.boundary.ProduzioneGestionaleService;
 import com.mainardisoluzioni.scadaleva.business.produzione.control.EventoProduzioneController;
 import com.mainardisoluzioni.scadaleva.business.produzione.control.ProduzioneGestionaleController;
 import com.mainardisoluzioni.scadaleva.business.produzione.entity.EventoProduzione;
-import com.mainardisoluzioni.scadaleva.business.produzione.entity.OrdineDiProduzione;
 import com.mainardisoluzioni.scadaleva.business.produzione.entity.ParametroMacchinaProduzione;
+import com.mainardisoluzioni.scadaleva.business.produzione.entity.ProduzioneGestionale;
 import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
@@ -50,10 +48,7 @@ public class CsvDeviceController {
     EventoProduzioneService eventoProduzioneService;
     
     @Inject
-    OrdineDiProduzioneService ordineDiProduzioneService;
-    
-    @Inject
-    ProduzioneGestionaleService produzioneGestionaleService;
+    ProduzioneGestionaleController produzioneGestionaleController;
     
     public void leggiDatiDaCsvEPopolaEventoProduzione(@NotNull CsvDevice csvDevice) {
         try (Scanner scanner = new Scanner(new File(csvDevice.getPath()))) {
@@ -73,7 +68,7 @@ public class CsvDeviceController {
                         if (lastTimestampProduzione != null && (readTimestamp == null || readTimestamp.isBefore(lastTimestampProduzione) || readTimestamp.isEqual(lastTimestampProduzione)))
                             continue;
                         else {
-                            OrdineDiProduzione ordineDiProduzione = ordineDiProduzioneService.getLastOrdineDiProduzione(macchina.getCodice());
+                            ProduzioneGestionale produzioneGestionale = produzioneGestionaleController.getLastOrdineDiProduzione(macchina.getCodice());
                             
                             int quantita = ottieniValoreDatoIndice(contapezziColumIndex, columns);
                             int funzionamentoCicloAutomatico = ottieniValoreDatoIndice(funzionamentoCicloAutomaticoColumIndex, columns);
@@ -87,7 +82,7 @@ public class CsvDeviceController {
                                     macchina,
                                     readTimestamp,
                                     quantita,
-                                    ordineDiProduzione
+                                    produzioneGestionale
                             );
                             for (CsvNode csvNode : csvDevice.getCsvNodes()) {
                                 if (
@@ -113,17 +108,6 @@ public class CsvDeviceController {
                                     ricetta = "---";
                                 }
                             }
-                            produzioneGestionaleService.save(
-                                    ProduzioneGestionaleController.createAndSave(
-                                            macchina.getCodice(),
-                                            ricetta,
-                                            ordineDiProduzione,
-                                            funzionamentoCicloAutomatico,
-                                            presenzaAllarme,
-                                            readTimestamp,
-                                            quantita
-                                    )
-                            );
                         }
                     } catch (DateTimeParseException ex) {
                         LOGGER.log(

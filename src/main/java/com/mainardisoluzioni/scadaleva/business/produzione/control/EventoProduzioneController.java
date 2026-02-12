@@ -17,7 +17,7 @@
 package com.mainardisoluzioni.scadaleva.business.produzione.control;
 
 import com.mainardisoluzioni.scadaleva.business.produzione.entity.EventoProduzione;
-import com.mainardisoluzioni.scadaleva.business.produzione.entity.OrdineDiProduzione;
+import com.mainardisoluzioni.scadaleva.business.produzione.entity.ProduzioneGestionale;
 import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -28,10 +28,10 @@ import java.time.LocalDateTime;
  */
 public class EventoProduzioneController {
     
-    public static EventoProduzione createEventoProduzione(@NotNull Macchina macchina, @NotNull LocalDateTime timestampProduzione, @NotNull Integer quantitaProdotta, OrdineDiProduzione ordineDiProduzione) {
+    public static EventoProduzione createEventoProduzione(@NotNull Macchina macchina, @NotNull LocalDateTime timestampProduzione, @NotNull Integer quantitaProdotta, ProduzioneGestionale produzioneGestionale) {
         EventoProduzione eventoProduzione = new EventoProduzione();
-        if (ordineDiProduzione != null)
-            eventoProduzione.setNumeroOrdineDiProduzione(ordineDiProduzione.getNumeroOrdineDiProduzione());
+        if (produzioneGestionale != null)
+            eventoProduzione.setNumeroOrdineDiProduzione(produzioneGestionale.getNumeroOrdineDiProduzione());
         eventoProduzione.setMacchina(macchina);
         eventoProduzione.setTimestampProduzione(timestampProduzione);
         eventoProduzione.setQuantita(quantitaProdotta);

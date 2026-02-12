@@ -22,6 +22,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -30,46 +31,71 @@ import java.time.LocalTime;
  * @author maina
  */
 @Entity
-@Table(name = "produzione")
+@Table(name = "MacchineStato")
 public class ProduzioneGestionale {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "Id")
+    @Column(name = "id")
     private Long id;
     
-    @Column(name = "NumeroOdL", length = 15)
-    private String numeroOrdineDiProduzione;
-    
-    @Column(name = "DataOdL")
-    private LocalDate dataOrdineDiProduzione;
-    
-    @Column(name = "Macchina")
+    @Column(name = "macchina", length = 8)
     private String codiceMacchina;
     
-    @Column(name = "DataProd")
+    @Column(name = "commessa", length = 6)
+    private String numeroOrdineDiProduzione;
+    
+    @Column(name = "data")
+    private LocalDate dataOrdineDiProduzione;
+    
+    @Column(name = "articolo", length = 16)
+    private String codiceArticolo;
+    
+    @Column(name = "descrizione", length = 40)
+    private String nomeArticolo;
+    
+    @Column(name = "qta_commessa", scale = 16, precision = 4)
+    private BigDecimal quantita;                       // quantità dell'ordine
+    
+    @Column(name = "fase", length = 6)
+    private String fase;
+    
+    @Column(name = "operazione", length = 3)
+    private String codiceOperazione;
+    
+    @Column(name = "descrizioneOperazione", length = 40)
+    private String nomeOperazione;
+    
+    @Column(name = "Attrezzatura", length = 16)
+    private String codiceAttrezzatura;
+    
+    @Column(name = "DescrizioneAttrezzatura", length = 40)
+    private String nomeAttrezzatura;
+    
+    @Column(name = "impronte")
+    private Integer impronte;
+    
+    @Column(name = "dal")
     private LocalDate dataProduzione;
     
-    @Column(name = "OraProd")
+    @Column(name = "dalle")
     private LocalTime orarioProduzione;
     
-    @Column(name = "StatoLav", length = 1)
+    @Column(name = "statoAttuale", length = 1)
     private String statoLavorazione;
     
-    @Column(name = "Quantita")
-    private Integer quantita;                       // quantità dell'ordine
+    /**
+     * Valore dell'etichetta che potrà essere applicata al pezzo oppure al
+     * contenitore (ad esempio un cassone)
+     */
+    @Column(name = "ultimoUDXuscito", length = 20)
+    private String serialeEtichetta;
     
-    @Column(name = "totPezzi")
-    private Integer pezziProdotti;
+    @Column(name = "ProgressivoBuoniCommessa", scale = 16, precision = 4)
+    private BigDecimal pezziProdottiCorrettamente;
     
-    @Column(name = "allarme")
-    private Integer presenzaAllarme;                // no allarme -> 0 / allarme presente -> 1
+    @Column(name = "ProgressivoScartiCommessa", scale = 16, precision = 4)
+    private BigDecimal pezziProdottiDiScarto;
     
-    @Column(name = "inAutomatico")
-    private Integer funzionamentoCicloInAutomatico; // manuale -> 0 / automatico -> 1
-    
-    @Column(name = "ricetta")
-    private String codiceRicettaImpostata;          // codice ricetta letta dal gestionale, scritta su HMI e letta da HMI
-
     public ProduzioneGestionale() {
     }
 
@@ -79,6 +105,14 @@ public class ProduzioneGestionale {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getCodiceMacchina() {
+        return codiceMacchina;
+    }
+
+    public void setCodiceMacchina(String codiceMacchina) {
+        this.codiceMacchina = codiceMacchina;
     }
 
     public String getNumeroOrdineDiProduzione() {
@@ -97,12 +131,76 @@ public class ProduzioneGestionale {
         this.dataOrdineDiProduzione = dataOrdineDiProduzione;
     }
 
-    public String getCodiceMacchina() {
-        return codiceMacchina;
+    public String getCodiceArticolo() {
+        return codiceArticolo;
     }
 
-    public void setCodiceMacchina(String codiceMacchina) {
-        this.codiceMacchina = codiceMacchina;
+    public void setCodiceArticolo(String codiceArticolo) {
+        this.codiceArticolo = codiceArticolo;
+    }
+
+    public String getNomeArticolo() {
+        return nomeArticolo;
+    }
+
+    public void setNomeArticolo(String nomeArticolo) {
+        this.nomeArticolo = nomeArticolo;
+    }
+
+    public BigDecimal getQuantita() {
+        return quantita;
+    }
+
+    public void setQuantita(BigDecimal quantita) {
+        this.quantita = quantita;
+    }
+
+    public String getFase() {
+        return fase;
+    }
+
+    public void setFase(String fase) {
+        this.fase = fase;
+    }
+
+    public String getCodiceOperazione() {
+        return codiceOperazione;
+    }
+
+    public void setCodiceOperazione(String codiceOperazione) {
+        this.codiceOperazione = codiceOperazione;
+    }
+
+    public String getNomeOperazione() {
+        return nomeOperazione;
+    }
+
+    public void setNomeOperazione(String nomeOperazione) {
+        this.nomeOperazione = nomeOperazione;
+    }
+
+    public String getCodiceAttrezzatura() {
+        return codiceAttrezzatura;
+    }
+
+    public void setCodiceAttrezzatura(String codiceAttrezzatura) {
+        this.codiceAttrezzatura = codiceAttrezzatura;
+    }
+
+    public String getNomeAttrezzatura() {
+        return nomeAttrezzatura;
+    }
+
+    public void setNomeAttrezzatura(String nomeAttrezzatura) {
+        this.nomeAttrezzatura = nomeAttrezzatura;
+    }
+
+    public Integer getImpronte() {
+        return impronte;
+    }
+
+    public void setImpronte(Integer impronte) {
+        this.impronte = impronte;
     }
 
     public LocalDate getDataProduzione() {
@@ -129,44 +227,28 @@ public class ProduzioneGestionale {
         this.statoLavorazione = statoLavorazione;
     }
 
-    public Integer getQuantita() {
-        return quantita;
+    public String getSerialeEtichetta() {
+        return serialeEtichetta;
     }
 
-    public void setQuantita(Integer quantita) {
-        this.quantita = quantita;
+    public void setSerialeEtichetta(String serialeEtichetta) {
+        this.serialeEtichetta = serialeEtichetta;
     }
 
-    public Integer getPezziProdotti() {
-        return pezziProdotti;
+    public BigDecimal getPezziProdottiCorrettamente() {
+        return pezziProdottiCorrettamente;
     }
 
-    public void setPezziProdotti(Integer pezziProdotti) {
-        this.pezziProdotti = pezziProdotti;
+    public void setPezziProdottiCorrettamente(BigDecimal pezziProdottiCorrettamente) {
+        this.pezziProdottiCorrettamente = pezziProdottiCorrettamente;
     }
 
-    public Integer getPresenzaAllarme() {
-        return presenzaAllarme;
+    public BigDecimal getPezziProdottiDiScarto() {
+        return pezziProdottiDiScarto;
     }
 
-    public void setPresenzaAllarme(Integer presenzaAllarme) {
-        this.presenzaAllarme = presenzaAllarme;
+    public void setPezziProdottiDiScarto(BigDecimal pezziProdottiDiScarto) {
+        this.pezziProdottiDiScarto = pezziProdottiDiScarto;
     }
 
-    public Integer getFunzionamentoCicloInAutomatico() {
-        return funzionamentoCicloInAutomatico;
-    }
-
-    public void setFunzionamentoCicloInAutomatico(Integer funzionamentoCicloInAutomatico) {
-        this.funzionamentoCicloInAutomatico = funzionamentoCicloInAutomatico;
-    }
-
-    public String getCodiceRicettaImpostata() {
-        return codiceRicettaImpostata;
-    }
-
-    public void setCodiceRicettaImpostata(String codiceRicettaImpostata) {
-        this.codiceRicettaImpostata = codiceRicettaImpostata;
-    }
-    
 }

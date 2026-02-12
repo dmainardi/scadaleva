@@ -17,16 +17,17 @@
 package com.mainardisoluzioni.scadaleva.business.comunicazione.control;
 
 import com.mainardisoluzioni.scadaleva.business.comunicazione.boundary.OpcuaDeviceService;
+import static com.mainardisoluzioni.scadaleva.business.comunicazione.control.CategoriaVariabileProduzione.CODICE_ORDINE_DI_PRODUZIONE;
+import static com.mainardisoluzioni.scadaleva.business.comunicazione.control.CategoriaVariabileProduzione.DATA_ORDINE_DI_PRODUZIONE;
 import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.OpcuaDevice;
 import com.mainardisoluzioni.scadaleva.business.comunicazione.entity.OpcuaNode;
 import com.mainardisoluzioni.scadaleva.business.produzione.boundary.EventoProduzioneService;
 import com.mainardisoluzioni.scadaleva.business.produzione.boundary.OrdineDiProduzioneService;
-import com.mainardisoluzioni.scadaleva.business.produzione.boundary.ProduzioneGestionaleService;
 import com.mainardisoluzioni.scadaleva.business.produzione.control.EventoProduzioneController;
 import com.mainardisoluzioni.scadaleva.business.produzione.control.ProduzioneGestionaleController;
 import com.mainardisoluzioni.scadaleva.business.produzione.entity.EventoProduzione;
-import com.mainardisoluzioni.scadaleva.business.produzione.entity.OrdineDiProduzione;
 import com.mainardisoluzioni.scadaleva.business.produzione.entity.ParametroMacchinaProduzione;
+import com.mainardisoluzioni.scadaleva.business.produzione.entity.ProduzioneGestionale;
 import com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina;
 import io.netty.channel.ConnectTimeoutException;
 import jakarta.annotation.PostConstruct;
@@ -87,7 +88,7 @@ public class OpcuaController {
     OrdineDiProduzioneService ordineDiProduzioneService;
     
     @Inject
-    ProduzioneGestionaleService produzioneGestionaleService;
+    ProduzioneGestionaleController produzioneGestionaleController;
     
     private Map<OpcUaClient, OpcuaDevice> clients;
     private final Map<Macchina, Integer> lastCycleCounters = new HashMap<>();   // ultimo valore del contapezzi
@@ -196,8 +197,8 @@ public class OpcuaController {
                     quantitaProdotta = currentCycleCounter;
                 else
                     quantitaProdotta = currentCycleCounter - previousCycleCounter;
-                OrdineDiProduzione ordineDiProduzione = ordineDiProduzioneService.getLastOrdineDiProduzione(macchina.getCodice());
-                EventoProduzione eventoProduzione = EventoProduzioneController.createEventoProduzione(opcuaDeviceTemp.getMacchina(), LocalDateTime.now(Clock.systemUTC()), quantitaProdotta, ordineDiProduzione);
+                ProduzioneGestionale produzioneGestionale = produzioneGestionaleController.getLastOrdineDiProduzione(macchina.getCodice());
+                EventoProduzione eventoProduzione = EventoProduzioneController.createEventoProduzione(opcuaDeviceTemp.getMacchina(), LocalDateTime.now(Clock.systemUTC()), quantitaProdotta, produzioneGestionale);
                 lastCycleCounters.put(
                         macchina,
                         currentCycleCounter
@@ -206,32 +207,33 @@ public class OpcuaController {
                 List<WriteValue> writeValues = new ArrayList<>();
                 for (OpcuaNode opcuaNodeTemp : opcuaDeviceTemp.getOpcuaNodes()) {
                     Variant variant = null;
-                    if (ordineDiProduzione != null) {
+                    if (produzioneGestionale != null) {
                         switch (opcuaNodeTemp.getCategoriaVariabileProduzione()) {
-                            case CODICE_ARTICOLO:
-                                variant = new Variant(ordineDiProduzione.getCodiceArticolo());
-                                break;
                             case CODICE_ORDINE_DI_PRODUZIONE:
-                                variant = new Variant(ordineDiProduzione.getNumeroOrdineDiProduzione());
-                                break;
-                            case CONTAPEZZI:
+                                variant = new Variant(produzioneGestionale.getNumeroOrdineDiProduzione());
                                 break;
                             case DATA_ORDINE_DI_PRODUZIONE:
-                                variant = new Variant(DateTimeFormatter.ISO_DATE.format(ordineDiProduzione.getDataOrdineDiProduzione()));
+                                variant = new Variant(DateTimeFormatter.ISO_DATE.format(produzioneGestionale.getDataOrdineDiProduzione()));
                                 break;
-                            case LOTTO:
-                                variant = new Variant(ordineDiProduzione.getLotto());
-                                break;
-                            case QUANTITA_PRODOTTA_CORRETTAMENTE:
-                                variant = new Variant(ordineDiProduzione.getQuantitaProdottaCorrettamente().intValue());
+                            case CODICE_ARTICOLO:
+                                variant = new Variant(produzioneGestionale.getCodiceArticolo());
                                 break;
                             case QUANTITA_RICHIESTA:
-                                variant = new Variant(ordineDiProduzione.getQuantitaDaRealizzare().intValue());
+                                variant = new Variant(produzioneGestionale.getQuantita().intValue());
                                 break;
                             case RICETTA_IMPOSTATA_IN_SCRITTURA_CODICE:
+                                variant = new Variant(produzioneGestionale.getNomeAttrezzatura());
                                 break;
-                            case RICETTA_RICHIESTA_CODICE:
-                                variant = new Variant(ordineDiProduzione.getCodiceRicettaRichiesta());
+                            case QUANTITA_PRODOTTA_CORRETTAMENTE:
+                                variant = new Variant(produzioneGestionale.getPezziProdottiCorrettamente().intValue());
+                                break;
+                            case QUANTITA_PRODOTTA_DI_SCARTO:
+                                variant = new Variant(produzioneGestionale.getPezziProdottiDiScarto().intValue());
+                                break;
+                            case LOTTO:
+                                variant = new Variant(produzioneGestionale.getSerialeEtichetta());
+                                break;
+                            case CONTAPEZZI:
                                 break;
                             default:
                                 variant = new Variant("Categoria variabile produzione non impostata");
@@ -281,18 +283,6 @@ public class OpcuaController {
                 }
 
                 eventoProduzioneService.save(eventoProduzione);
-                
-                produzioneGestionaleService.save(
-                        ProduzioneGestionaleController.createAndSave(
-                                macchina.getCodice(),
-                                eventoProduzione.getParametriMacchinaProduzione().stream().filter(pmp -> CategoriaVariabileProduzione.RICETTA_IMPOSTATA_IN_LETTURA_CODICE == pmp.getCategoriaVariabileProduzione()).map(ParametroMacchinaProduzione::getValore).findFirst().orElse(null),
-                                ordineDiProduzione,
-                                eventoProduzione.getParametriMacchinaProduzione().stream().filter(pmp -> CategoriaVariabileProduzione.FUNZIONAMENTO_CICLO_AUTOMATICO == pmp.getCategoriaVariabileProduzione()).map(pmp -> Boolean.valueOf(pmp.getValore()) ? 1 : 0).findFirst().orElse(null),
-                                eventoProduzione.getParametriMacchinaProduzione().stream().filter(pmp -> CategoriaVariabileProduzione.PRESENZA_ALLARME == pmp.getCategoriaVariabileProduzione()).map(pmp -> Boolean.valueOf(pmp.getValore()) ? 1 : 0).findFirst().orElse(null),
-                                LocalDateTime.now(),
-                                quantitaProdotta
-                        )
-                );
 
                 LOGGER.log(
                         Level.FINE,

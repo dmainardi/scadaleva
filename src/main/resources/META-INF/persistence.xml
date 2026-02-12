@@ -13,7 +13,6 @@
         <class>com.mainardisoluzioni.scadaleva.business.produzione.entity.ParametroMacchinaProduzione</class>
         <class>com.mainardisoluzioni.scadaleva.business.reparto.entity.Macchina</class>
         <class>com.mainardisoluzioni.scadaleva.business.produzione.entity.ProduzioneGestionale</class>
-        <class>com.mainardisoluzioni.scadaleva.business.fustellatrice.entity.AccessDevice</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <!--Uncomment/comment for enabling/disabling database creation and population-->

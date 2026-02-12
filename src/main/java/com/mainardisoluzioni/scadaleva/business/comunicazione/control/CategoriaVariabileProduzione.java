@@ -62,7 +62,8 @@ public enum CategoriaVariabileProduzione {
     FUSTELLATRICE_DELTA_1(38),
     FUSTELLATRICE_CORREZIONE(39),
     FUSTELLATRICE_OFFSET_Z(40),
-    TIMESTAMP(41);
+    TIMESTAMP(41),
+    QUANTITA_PRODOTTA_DI_SCARTO(42);                // la quantità prodotta che compare sul HMI
     
     private final int value;
     

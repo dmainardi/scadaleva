@@ -16,42 +16,50 @@
  */
 package com.mainardisoluzioni.scadaleva.business.produzione.control;
 
-import com.mainardisoluzioni.scadaleva.business.produzione.entity.OrdineDiProduzione;
 import com.mainardisoluzioni.scadaleva.business.produzione.entity.ProduzioneGestionale;
+import com.mainardisoluzioni.scadaleva.business.produzione.entity.ProduzioneGestionale_;
+import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  *
  * @author maina
  */
+@Stateless
 public class ProduzioneGestionaleController {
+    @PersistenceContext(unitName = "scadaleva_PU")
+    EntityManager em;
     
-    public static ProduzioneGestionale createAndSave(
-            @NotBlank String codiceMacchina,
-            @NotBlank String codiceRicettaImpostata,
-            OrdineDiProduzione ordineDiProduzione,
-            @NotNull Integer funzionamentoCicloInAutomatico,
-            @NotNull Integer presenzaAllarme,
-            @NotNull LocalDateTime timestampProduzione,
-            @NotNull Integer quantitaProdotta
-    ) {
-        ProduzioneGestionale produzioneGestionale = new ProduzioneGestionale();
-        produzioneGestionale.setCodiceMacchina(codiceMacchina);
-        produzioneGestionale.setCodiceRicettaImpostata(codiceRicettaImpostata);
-        if (ordineDiProduzione != null) {
-            produzioneGestionale.setDataOrdineDiProduzione(ordineDiProduzione.getDataOrdineDiProduzione());
-            produzioneGestionale.setNumeroOrdineDiProduzione(ordineDiProduzione.getNumeroOrdineDiProduzione());
-            produzioneGestionale.setQuantita(ordineDiProduzione.getQuantitaDaRealizzare().intValue());
-            produzioneGestionale.setStatoLavorazione(ordineDiProduzione.getStatoOdl() != null && !ordineDiProduzione.getStatoOdl().isBlank() && ordineDiProduzione.getStatoOdl().equalsIgnoreCase("k") ? "T" : "L");
-        }
-        produzioneGestionale.setFunzionamentoCicloInAutomatico(funzionamentoCicloInAutomatico);
-        produzioneGestionale.setOrarioProduzione(timestampProduzione.toLocalTime());
-        produzioneGestionale.setDataProduzione(timestampProduzione.toLocalDate());
-        produzioneGestionale.setPezziProdotti(quantitaProdotta);
-        produzioneGestionale.setPresenzaAllarme(presenzaAllarme);
-        
-        return produzioneGestionale;
+    /**
+     * Restituisce l'ultimo ordine di produzione (il più recente) in lavorazione
+     * della macchina specificata.
+     * @param codiceMacchina codice identificativo del macchinario
+     * @return ordine di produzione più recente, opppure NULL se non ci sono 
+     * ordini di produzione associati alla macchina
+     */
+    public ProduzioneGestionale getLastOrdineDiProduzione(@NotBlank String codiceMacchina) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<ProduzioneGestionale> query = cb.createQuery(ProduzioneGestionale.class);
+        Root<ProduzioneGestionale> root = query.from(ProduzioneGestionale.class);
+        CriteriaQuery<ProduzioneGestionale> select = query.select(root).distinct(true);
+        query.where(
+                cb.like(root.get(ProduzioneGestionale_.codiceMacchina), codiceMacchina),
+                cb.like(cb.upper(root.get(ProduzioneGestionale_.statoLavorazione)), "L")
+        );
+        query.orderBy(cb.desc(root.get(ProduzioneGestionale_.dataOrdineDiProduzione)));
+        TypedQuery<ProduzioneGestionale> typedQuery = em.createQuery(select);
+        typedQuery.setMaxResults(1);
+        List<ProduzioneGestionale> resultList = typedQuery.getResultList();
+        if (resultList == null || resultList.isEmpty())
+            return null;
+        else
+            return resultList.get(0);
     }
 }

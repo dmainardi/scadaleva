@@ -125,7 +125,7 @@ public class OpcuaController {
                 listen(opcuaDevice, client);
                 clients.put(client, opcuaDevice);
             } catch (InterruptedException | ExecutionException | NumberFormatException | UaException | TimeoutException ex) {
-                if (!getCause(ex).getClass().equals(ConnectTimeoutException.class)) // evita di 'sporcare' i log con ConnectTimeoutException quando le macchine sono spente
+                if (!getCause(ex).getClass().equals(ConnectTimeoutException.class) && !getCause(ex).getClass().equals(io.netty.channel.AbstractChannel.class)) // evita di 'sporcare' i log con ConnectTimeoutException quando le macchine sono spente
                     LOGGER.log(Level.WARNING, "OpcuaController:createAndConnectToClients - Errore: {0}", new Object[]{ex.getLocalizedMessage()});
             }
         }

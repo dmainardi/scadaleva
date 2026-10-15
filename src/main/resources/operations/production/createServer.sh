@@ -102,7 +102,7 @@ sed -i s/AS_HOME/$ESCAPED_AS_HOME/g payara.service
 scp -P $(config_get SSH_PORT) payara.service root@$(config_get IP_ADDRESS):/etc/systemd/system/
 
 # Abilitare e avviare il servizio in modo che Payara possa avviarsi ed arrestarsi insieme alla macchina
-ssh -p $(config_get SSH_PORT) root@$(config_get IP_ADDRESS) 'systemctl enable payara; systemctl start payara'
+ssh -p $(config_get SSH_PORT) root@$(config_get IP_ADDRESS) 'chmod 664 /etc/systemd/system/payara.service; systemctl daemon-reaload; systemctl enable payara; systemctl start payara'
 
 # Pubblicare l'applicazione
 scp -P $(config_get SSH_PORT) $(config_get IDE_WORKSPACE)/$(config_get APP_NAME)/target/$(config_get APP_NAME).war root@$(config_get IP_ADDRESS):/home/$(config_get AS_USER_NAME)/

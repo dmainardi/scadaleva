@@ -29,7 +29,7 @@ import jakarta.validation.constraints.NotBlank;
 @Entity
 public class Macchina {
     @Id
-    @Column(nullable = false, length = 6)
+    @Column(nullable = false, length = 8)
     private @NotBlank String codice;
     
     private String nome;
